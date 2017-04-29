@@ -1,0 +1,129 @@
+4-21-17:
+	Followed ThinMatrix tutorials
+	Textures
+	VAOs, VBOs
+	Shaders
+	OBJ Importer
+4-22-17:
+	Followed ThinMatrix tutorials
+	Entity
+	SceneRenderer
+	Terrain (from heightmap file)
+	Transparency and Culling
+	Fog
+	Window Icons
+	Input Processing
+	GLFWDropCallback
+	Preliminary first person camera controller
+4-23-17:
+	Followed ThinMatrix tutorials
+	Multitextured terrain
+	Basic physics engine
+	Screenshots
+	Terrain collision detection
+	Texture atlases
+	Foundation for GUI/HUD
+	Directional Lights
+	Point Lights
+	Skyboxes
+4-24-17:
+	Followed ThinMatrix tutorials
+	Mouse Picking
+	Normal Mapping
+	Font Rendering
+	Distance Field Text Rendering
+4-25-17;
+	Followed ThinMatrix tutorials
+	Font Effects
+	Particle System
+4-26-17
+	Followed ThinMatrix tutorials
+	Faster Particle System
+	Tiled Terrain
+4-27-17
+	Fixed heightmap terrain rendering
+4-28-17
+	Followed ThinMatrix water tutorials
+	Started rendering water
+	Started audio backend
+	
+Remaining Tutorials:
+	Water:
+		- DuDv Maps
+		- Fresnel Effect
+		- Normal Maps
+		- Soft Edges
+	Audio:
+		- Introduction
+		- Playing Sound Effects
+		- Playing 3D Sounds
+		- Distance Attenuation
+	General:
+		- Shadow Mapping
+		- Percentage Closer Filtering
+		- Antialiasing and Anisotropic Filtering
+		- Exporting a LWJGL Game
+		- Post-Processing Effects
+		- Gaussian Blur
+		- Multisampled FBOs
+		- Specular Maps
+		- Bloom Effect
+		- Multiple Render Targets
+		- Geometry Shaders
+		- Cube Map Reflections
+		- Render to Cube Map Texture
+	Skeletal:
+		- Skeletal Animation (3)
+		- Reading Collada Animation Files
+
+Audio:
+- ALAudioBackend
+- ALMusic
+- ALSoundEffect
+- Vorbis Decoder
+
+Terrain:
+- fix terrain generator (to be seeded)
+- navmesh for traveling on terrain
+- note: could use other color values to allow more types of terrain in blendmap
+
+Models:
+- add material loading to OBJ importer
+
+Graphics:
+- hiding cursor (locking mouse to window)
+- changing cursor
+- normal mapped shader doesn't fade with fog
+- optimize shader uploads and other calls
+
+Physics:
+- fix or rewrite
+- fix WA or SD combined movement
+- find a better physics data structure (QuadTree?)
+- change orientation during collision
+- connect engine.physics.Body to engine.Entity
+
+Text:
+- text renderer with multiple pages
+- text alignment
+
+Skybox:
+- follow ThinMatrix tutorial again?
+- skybox background color
+- cloud layers on skybox
+- stars at night
+- better fog
+- skybox rotate with player
+- doppler effect-ish
+- update fog color from skybox
+
+Water:
+- fix rotation for reflection in water
+
+Other:
+- mouse picker usage: improved first person camera controls?
+- fix first person camera controller rotation
+
+Start at OpenGL Water Tutorial 4
+Start at OpenAL Audio Tutorial 1
+Start at OpenGL Tutorial 38
