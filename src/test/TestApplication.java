@@ -95,8 +95,8 @@ public class TestApplication {
 	private static long seed = System.currentTimeMillis();
 
 	private static TerrainGenerator newGenerator(int x, int z) {
-		return new ProceduralTerrainGenerator(seed, 35, 15, x, z);
-//		return new HeightmapTerrainGenerator(heightmap, 50, 0, x, z);
+//		return new ProceduralTerrainGenerator(seed, 35, 15, x, z);
+		return new HeightmapTerrainGenerator(heightmap, 50, 0, x, z);
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
@@ -161,7 +161,7 @@ public class TestApplication {
 				ArrayList<WaterTile> waterTiles = new ArrayList<>();
 				waterTiles.add(new WaterTile(80, 22, 80));
 				Water water = new Water(waterTiles);
-				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water);
+				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"));
 				
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
 						engine.getSettings().backgroundColor, skybox, waterRenderer);

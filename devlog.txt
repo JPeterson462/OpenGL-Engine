@@ -49,6 +49,7 @@
 4-29-17:
 	Finished audio backend
 	Simplex noise generation
+	Partial implementation of water rendering
 	
 Remaining Tutorials:
 	Water:
@@ -110,10 +111,11 @@ Skybox:
 
 Water:
 - fix rotation for reflection in water
+- normal mapping
 
 Other:
 - mouse picker usage: improved first person camera controls?
 - fix first person camera controller rotation
 
-Start at OpenGL Water Tutorial 4
+Start at OpenGL Water Tutorial 7
 Start at OpenGL Tutorial 38

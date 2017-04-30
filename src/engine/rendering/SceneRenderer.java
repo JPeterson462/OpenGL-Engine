@@ -40,6 +40,8 @@ public class SceneRenderer {
 	
 	private MousePicker mousePicker;
 	
+	private Matrix4f emptyMatrix = new Matrix4f();
+	
 	public SceneRenderer(Shader defaultShader, Shader normalMappedShader, Camera camera, TerrainRenderer terrainRenderer, 
 			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer) {
 		this.defaultShader = defaultShader;
@@ -83,7 +85,7 @@ public class SceneRenderer {
 		return skyColor;
 	}
 	
-	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane) {
+	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix) {
 		shader.bind();
 		if (normalMaps) {
 			shader.uploadInt("diffuseTexture", 0);
@@ -92,7 +94,12 @@ public class SceneRenderer {
 			shader.uploadInt("texture", 0);
 		}
 		shader.uploadVector("plane", clipPlane);
-		camera.uploadTo(shader);
+		if (sendViewMatrix) {
+			camera.uploadTo(shader);
+		} else {
+			shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
+			shader.uploadMatrix("viewMatrix", emptyMatrix);
+		}
 		for (int i = 0; i < MAX_LIGHTS; i++) {
 			if (i < lightCount) {
 				shader.uploadVector("lightPosition[" + i + "]", lights[i].getPosition());
@@ -144,10 +151,10 @@ public class SceneRenderer {
 		shader.unbind();
 	}
 	
-	private void renderScene(Vector4f plane) {
+	private void renderScene(Vector4f plane, boolean sendViewMatrix) {
 		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane);
-		render(defaultEntityMap, defaultShader, false, plane);
-		render(normalMappedEntityMap, normalMappedShader, true, plane);
+		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix);
+		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix);
 		skyboxRenderer.render(camera);
 	}
 	
@@ -155,7 +162,7 @@ public class SceneRenderer {
 		camera.update();
 		mousePicker.update(mouse, width, height);
 		skyboxRenderer.update(delta);
-		waterRenderer.render(camera, (plane) -> renderScene(plane));
+		waterRenderer.render(camera, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix), delta);
 	}
 	
 }
