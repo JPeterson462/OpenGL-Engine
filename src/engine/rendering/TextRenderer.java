@@ -1,6 +1,9 @@
 package engine.rendering;
 
 import java.util.ArrayList;
+
+import org.joml.Vector4f;
+
 import engine.Camera;
 import engine.Engine;
 import engine.OrthographicCamera;
@@ -19,6 +22,9 @@ public class TextRenderer {
 		this.shader = shader;
 		textBuffers = new ArrayList<>();
 		camera = new OrthographicCamera(width, height);
+		shader.bind();
+		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
+		shader.unbind();
 	}	
 	
 	public void addText(TextBuffer buffer) {
@@ -29,7 +35,6 @@ public class TextRenderer {
 		camera.update();
 		engine.getRenderingBackend().setDepth(false);
 		shader.bind();
-		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
 		Geometry lastGeometry = null;
 		Texture lastTexture = null;
 		for (int i = 0; i < textBuffers.size(); i++) {
@@ -38,10 +43,7 @@ public class TextRenderer {
 				continue; // Don't render empty text buffers
 			shader.uploadMatrix("viewMatrix", buffer.getViewMatrix());
 			TextEffect effect = buffer.getEffect();
-			shader.uploadFloat("lineWidth", effect.getLineWidth());
-			shader.uploadFloat("sharpness", effect.getSharpness());
-			shader.uploadFloat("borderWidth", effect.getBorderWidth());
-			shader.uploadVector("offset", effect.getOffset());
+			shader.uploadVector("textEffect", new Vector4f(effect.getLineWidth(), effect.getSharpness(), effect.getBorderWidth(), effect.getOffset().x));
 			shader.uploadVector("effectColor", effect.getColor());
 			Texture texture = buffer.getFont().getPages()[0].getTexture();
 			buffer.getGeometry().bind();

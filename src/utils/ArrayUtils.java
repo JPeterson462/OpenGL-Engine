@@ -17,5 +17,13 @@ public class ArrayUtils {
 		string += "]";
 		return string;
 	}
+	
+	public static void fill(float[][] data, float value) {
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				data[i][j] = value;
+			}
+		}
+	}
 
 }

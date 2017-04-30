@@ -1,6 +1,3 @@
-Saturday:
-- Complete Audio Backend
-- Fix Terrain Generator (seeded)
-- Fix Rotation for Water Reflection
-- Optimize Shader Passes
 - Changing Cursor
+- Faster Text Renderer
+- each widget passes its own shader?

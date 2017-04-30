@@ -46,6 +46,9 @@
 	Followed ThinMatrix water tutorials
 	Started rendering water
 	Started audio backend
+4-29-17:
+	Finished audio backend
+	Simplex noise generation
 	
 Remaining Tutorials:
 	Water:
@@ -53,11 +56,6 @@ Remaining Tutorials:
 		- Fresnel Effect
 		- Normal Maps
 		- Soft Edges
-	Audio:
-		- Introduction
-		- Playing Sound Effects
-		- Playing 3D Sounds
-		- Distance Attenuation
 	General:
 		- Shadow Mapping
 		- Percentage Closer Filtering
@@ -76,14 +74,7 @@ Remaining Tutorials:
 		- Skeletal Animation (3)
 		- Reading Collada Animation Files
 
-Audio:
-- ALAudioBackend
-- ALMusic
-- ALSoundEffect
-- Vorbis Decoder
-
 Terrain:
-- fix terrain generator (to be seeded)
 - navmesh for traveling on terrain
 - note: could use other color values to allow more types of terrain in blendmap
 
@@ -125,5 +116,4 @@ Other:
 - fix first person camera controller rotation
 
 Start at OpenGL Water Tutorial 4
-Start at OpenAL Audio Tutorial 1
 Start at OpenGL Tutorial 38

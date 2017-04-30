@@ -17,6 +17,8 @@ import engine.Entity;
 import engine.FirstPersonCamera;
 import engine.RawImage;
 import engine.Settings;
+import engine.audio.Music;
+import engine.audio.SoundEffect;
 import engine.gui.GUI;
 import engine.gui.Image;
 import engine.input.FirstPersonCameraController;
@@ -42,7 +44,9 @@ import engine.rendering.TextRenderer;
 import engine.rendering.VertexTemplate;
 import engine.rendering.WaterRenderer;
 import engine.terrain.HeightmapTerrainGenerator;
+import engine.terrain.ProceduralTerrainGenerator;
 import engine.terrain.Terrain;
+import engine.terrain.TerrainGenerator;
 import engine.terrain.TerrainTile;
 import engine.terrain.TerrainTexturePack;
 import engine.text.Font;
@@ -83,8 +87,13 @@ public class TestApplication {
 	private static Terrain terrain;
 
 	private static RawImage heightmap;
+	
+	private static Music music;
+	
+	private static SoundEffect effect;
 
-	private static HeightmapTerrainGenerator newGenerator(int x, int z) {
+	private static TerrainGenerator newGenerator(int x, int z) {
+//		return new ProceduralTerrainGenerator(0, 35, 15, x, z);
 		return new HeightmapTerrainGenerator(heightmap, 50, 0, x, z);
 	}
 
@@ -102,7 +111,6 @@ public class TestApplication {
 				Assets.attachTo(e);
 				font = FontImporter.loadFont("Consolas.fnt", e);
 				TextBuffer buf0 = new TextBuffer("Hello World", new Vector2f(50, 50), new Vector2f(200, 100), new Vector4f(0, 0, 0, 1), 72, font, e, 12);
-				buf0.setEffect(TextEffect.newDropShadow(new Vector3f(0.5f, 0.5f, 0.5f)));
 				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR), e.getSettings().width, e.getSettings().height);
 				textRenderer.addText(buf0);
 
@@ -128,7 +136,7 @@ public class TestApplication {
 				tiles[2][0] = new TerrainTile(newGenerator(2, 0), e, pack);
 				tiles[0][1] = new TerrainTile(newGenerator(0, 1), e, pack);
 				tiles[1][1] = new TerrainTile(newGenerator(1, 1), e, pack);
-				tiles[2][1] = new TerrainTile(newGenerator(2, 0), e, pack);
+				tiles[2][1] = new TerrainTile(newGenerator(2, 1), e, pack);
 				tiles[0][2] = new TerrainTile(newGenerator(0, 2), e, pack);
 				tiles[1][2] = new TerrainTile(newGenerator(1, 2), e, pack);
 				tiles[2][2] = new TerrainTile(newGenerator(2, 2), e, pack);
@@ -228,6 +236,10 @@ public class TestApplication {
 
 				controller = new FirstPersonCameraController(camera, e.getKeyboard(), e.getMouse(), body, e.getSettings().mouseSensitivity, 5);
 				controller.setSpeed(50);
+				
+//				music = e.getAudioBackend().loadMusic(e.getResource("sounds/01_Critical_Acclaim.ogx.ogg"), AudioFormat.VORBIS);
+//				e.getAudioBackend().setBackgroundMusic(music);
+//				e.getAudioBackend().setGain(0.5f);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

@@ -118,6 +118,8 @@ public class GLRenderingBackend implements RenderingBackend {
 		GLFW.glfwMakeContextCurrent(window);
 		if (settings.vSync)
 			GLFW.glfwSwapInterval(1);
+		else
+			GLFW.glfwSwapInterval(0);
 		if (settings.windowIcons != null) {
 			GLFW.glfwSetWindowIcon(window, GLFWUtils.loadIcons(settings));
 		}

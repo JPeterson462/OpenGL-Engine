@@ -44,21 +44,50 @@ public class TerrainRenderer {
 		for (int x = 0; x < tiles.length && !found; x++) {
 			for (int z = 0; z < tiles[0].length && !found; z++) {
 				if (tiles[x][z].pointInTile(player.x, player.z)) {
-					tryRenderTile(x - 1, z - 1, tiles);
-					tryRenderTile(x + 0, z - 1, tiles);
-					tryRenderTile(x + 1, z - 1, tiles);
-					tryRenderTile(x - 1, z + 0, tiles);
+					int quadrant = getQuadrant(player, tiles[x][z]);
+					switch (quadrant) {
+						case 0:
+							tryRenderTile(x - 1, z - 1, tiles);
+							tryRenderTile(x - 1, z + 0, tiles);
+							tryRenderTile(x + 0, z - 1, tiles);
+							break;
+						case 1:
+							tryRenderTile(x - 1, z + 1, tiles);
+							tryRenderTile(x - 1, z + 0, tiles);
+							tryRenderTile(x + 0, z + 1, tiles);
+							break;
+						case 2:
+							tryRenderTile(x + 1, z - 1, tiles);
+							tryRenderTile(x + 1, z + 0, tiles);
+							tryRenderTile(x + 0, z - 1, tiles);
+							break;
+						case 3:
+							tryRenderTile(x + 1, z + 1, tiles);
+							tryRenderTile(x + 1, z + 0, tiles);
+							tryRenderTile(x + 0, z + 1, tiles);
+							break;
+					}
 					tryRenderTile(x + 0, z + 0, tiles);
-					tryRenderTile(x + 1, z + 0, tiles);
-					tryRenderTile(x - 1, z + 1, tiles);
-					tryRenderTile(x + 0, z + 1, tiles);
-					tryRenderTile(x + 1, z + 1, tiles);
 					found = true;
 				}
 			}
 		}
 		shader.unbind();
 //		engine.setCulling(true);
+	}
+	
+	private int getQuadrant(Vector3f player, TerrainTile tile) {
+		float dx = (player.x - tile.getOffset().x) / tile.getSize().x;
+		float dz = (player.z - tile.getOffset().y) / tile.getSize().y;
+		if (dx <= 0.5f && dz <= 0.5f)
+			return 0;
+		if (dx <= 0.5f && dz > 0.5f)
+			return 1;
+		if (dx > 0.5f && dz <= 0.5f)
+			return 2;
+		if (dx > 0.5f && dz > 0.5f)
+			return 3;
+		return -1;
 	}
 	
 	private void tryRenderTile(int x, int z, TerrainTile[][] tiles) {

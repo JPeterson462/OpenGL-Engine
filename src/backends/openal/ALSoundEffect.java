@@ -14,4 +14,8 @@ public class ALSoundEffect {
 		AL10.alSourcePlay(source);
 	}
 
+	public int getSource() {
+		return source;
+	}
+
 }

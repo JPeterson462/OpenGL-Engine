@@ -11,7 +11,7 @@ out vec2 pass_TexCoord;
 out vec4 pass_Color;
 
 void main(void) {
-	gl_Position = projectionMatrix * viewMatrix * vec4(floor(in_Position), 0.0, 1.0);
+	gl_Position = projectionMatrix * viewMatrix * vec4(in_Position, 0.0, 1.0);
 	pass_TexCoord = in_TexCoord;
 	pass_Color = in_Color;
 }

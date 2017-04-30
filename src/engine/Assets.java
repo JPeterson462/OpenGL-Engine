@@ -9,8 +9,12 @@ import org.joml.Vector3f;
 
 import com.esotericsoftware.minlog.Log;
 
+import engine.audio.AudioFormat;
+import engine.audio.Music;
+import engine.audio.SoundEffect;
 import engine.models.Model;
 import engine.models.ModelImporter;
+import engine.rendering.Framebuffer;
 import engine.rendering.Geometry;
 import engine.rendering.Material;
 import engine.rendering.Shader;
@@ -22,6 +26,10 @@ import engine.terrain.TerrainTexturePack;
 public class Assets {
 	
 	private static Engine engine;
+	
+	public static Engine getEngine() {
+		return engine;
+	}
 	
 	public static void attachTo(Engine engine) {
 		Assets.engine = engine;
@@ -90,6 +98,24 @@ public class Assets {
 		indices.add(3);
 		indices.add(0);
 		return engine.getRenderingBackend().createGeometry(vertices, indices);
+	}
+	
+	public static Framebuffer newFramebuffer(int width, int height, int colorAttachments, boolean depthBuffer) {
+		return engine.getRenderingBackend().createFramebuffer(width, height, colorAttachments, depthBuffer);
+	}
+	
+	public static SoundEffect newSoundEffect(String path) {
+		return engine.getAudioBackend().loadSoundEffect(engine.getResource("sounds/" + path), determineFormat(path));
+	}
+	
+	public static Music newMusic(String path) {
+		return engine.getAudioBackend().loadMusic(engine.getResource("sounds/" + path), determineFormat(path));
+	}
+	
+	private static AudioFormat determineFormat(String path) {
+		if (path.endsWith(".ogg") || path.endsWith(".ogx"))
+			return AudioFormat.VORBIS;
+		return null;
 	}
 
 }

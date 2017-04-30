@@ -107,6 +107,7 @@ public class Engine {
 			renderingBackend.prepareContext();
 			update.invoke(this);
 			renderingBackend.updateContext();
+			audioBackend.updateContext();
 			if (System.currentTimeMillis() - lastSecond > 1000) {
 				lastSecond = System.currentTimeMillis();
 				totalFrames += frames;

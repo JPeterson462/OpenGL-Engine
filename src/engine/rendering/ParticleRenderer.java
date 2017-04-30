@@ -17,7 +17,7 @@ public class ParticleRenderer {
 	
 	private ArrayList<ParticleEmitter> particleEmitters = new ArrayList<>();
 	
-	public static final int MAX_INSTANCES = 10_000, DATA_PER_INSTANCE = 21;
+	public static final int MAX_INSTANCES = 1_000, DATA_PER_INSTANCE = 21;
 	
 	private Shader shader;
 	
@@ -104,7 +104,7 @@ public class ParticleRenderer {
 	
 	private void computeModelViewMatrix(Particle particle) {
 		modelViewMatrix.identity();
-		Matrix4f viewMatrix = new Matrix4f(camera.getViewMatrix());
+		Matrix4f viewMatrix = camera.getViewMatrix();
 		modelMatrix.identity();
 		modelMatrix.translate(particle.getPosition());
 		modelMatrix.m00(viewMatrix.m00());

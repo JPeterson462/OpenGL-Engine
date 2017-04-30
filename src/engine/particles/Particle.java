@@ -19,6 +19,8 @@ public class Particle implements Comparable<Particle> {
 	private float blendFactor, distanceSquared;
 	
 	private Vector3f distanceVector = new Vector3f();
+	
+	private int stageCount;
 
 	public Particle(Vector3f position, Vector3f velocity, float gravityEffect, float lifeLength, float rotation, float scale, int[] frames) {
 		this.position = position;
@@ -29,24 +31,34 @@ public class Particle implements Comparable<Particle> {
 		this.scale = scale;
 		elapsedTime = 0;
 		atlasSize = new Vector2i(frames[0], frames[1]);
+		stageCount = atlasSize.x * atlasSize.y;
 		computeAtlasOffset();
 	}
 	
 	private void computeAtlasOffset() {
 		float lifeFactor = elapsedTime / lifeLength;
-		int stageCount = atlasSize.x * atlasSize.y;
 		float atlasProgression = lifeFactor * stageCount;
 		int index1 = (int) Math.floor(atlasProgression);
-		int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
-		blendFactor = atlasProgression % 1;
-		int column = index1 % atlasSize.y;
-		int row = index1 / atlasSize.y;
-		atlasOffset.x = (float) column / (float) atlasSize.y;
-		atlasOffset.y = (float) row / (float) atlasSize.y;
-		column = index2 % atlasSize.y;
-		row = index2 / atlasSize.y;
-		nextAtlasOffset.x = (float) column / (float) atlasSize.y;
-		nextAtlasOffset.y = (float) row / (float) atlasSize.y;
+		float invAtlasSizeY = 1f / (float) atlasSize.y;
+		if (index1 < stageCount - 1) {
+			int index2 = index1 + 1;
+			blendFactor = atlasProgression - (int) atlasProgression;
+			int row = index1 / atlasSize.y;
+			int column = index1 - row * atlasSize.y;
+			atlasOffset.x = (float) column * invAtlasSizeY;
+			atlasOffset.y = (float) row * invAtlasSizeY;
+			row = index2 / atlasSize.y;
+			column = index2 - row * atlasSize.y;
+			nextAtlasOffset.x = (float) column * invAtlasSizeY;
+			nextAtlasOffset.y = (float) row * invAtlasSizeY;
+		} else {
+			blendFactor = 1;
+			int row = index1 / atlasSize.y;
+			int column = index1 - row * atlasSize.y;
+			atlasOffset.x = (float) column * invAtlasSizeY;
+			atlasOffset.y = (float) row * invAtlasSizeY;
+			nextAtlasOffset.set(atlasOffset);
+		}
 	}
 	
 	public String toString() {
