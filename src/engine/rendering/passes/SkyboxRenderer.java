@@ -1,7 +1,8 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import engine.Camera;
 import engine.Engine;
+import engine.rendering.Shader;
 
 import java.util.ArrayList;
 

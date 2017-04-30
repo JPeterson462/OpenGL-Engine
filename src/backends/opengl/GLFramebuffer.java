@@ -29,7 +29,11 @@ public class GLFramebuffer {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fboId);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL20.glDrawBuffers(buffers);
+		if (buffers.length > 0) {
+			GL20.glDrawBuffers(buffers);
+		} else {
+			GL11.glDrawBuffer(GL11.GL_NONE);
+		}
 		GL11.glViewport(0, 0, width, height);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}

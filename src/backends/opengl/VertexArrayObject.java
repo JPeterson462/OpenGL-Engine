@@ -53,10 +53,26 @@ public class VertexArrayObject {
 			indexBuffer.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
 	}
 	
+	public void bind(int attributes) {
+		GL30.glBindVertexArray(vaoId);
+		for (int i = 0; i < attributes; i++)
+			GL20.glEnableVertexAttribArray(i);
+		if (indexBuffer != null)
+			indexBuffer.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+	}
+	
 	public void unbind() {
 		if (indexBuffer != null)
 			indexBuffer.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
 		for (int i = 0; i < vbos.length; i++)
+			GL20.glDisableVertexAttribArray(i);
+		GL30.glBindVertexArray(0);
+	}
+
+	public void unbind(int attributes) {
+		if (indexBuffer != null)
+			indexBuffer.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+		for (int i = 0; i < attributes; i++)
 			GL20.glDisableVertexAttribArray(i);
 		GL30.glBindVertexArray(0);
 	}

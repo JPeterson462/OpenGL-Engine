@@ -1,4 +1,4 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,9 @@ import org.joml.Vector4f;
 import engine.Camera;
 import engine.Engine;
 import engine.OrthographicCamera;
+import engine.rendering.Geometry;
+import engine.rendering.Shader;
+import engine.rendering.Texture;
 import engine.text.TextBuffer;
 import engine.text.TextEffect;
 

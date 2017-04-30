@@ -1,10 +1,12 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import engine.Camera;
+import engine.rendering.Light;
+import engine.rendering.Shader;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainTile;
 

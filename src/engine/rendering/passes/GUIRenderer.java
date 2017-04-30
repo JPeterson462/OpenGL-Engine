@@ -1,10 +1,11 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import engine.Camera;
 import engine.Engine;
 import engine.OrthographicCamera;
 import engine.gui.GUI;
 import engine.gui.Widget;
+import engine.rendering.Shader;
 
 public class GUIRenderer {
 	

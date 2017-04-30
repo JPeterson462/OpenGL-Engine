@@ -1,4 +1,4 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +10,13 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import engine.Camera;
+import engine.Engine;
 import engine.Entity;
 import engine.input.Mouse;
+import engine.rendering.Geometry;
+import engine.rendering.Light;
+import engine.rendering.Material;
+import engine.rendering.Shader;
 import utils.MousePicker;
 
 public class SceneRenderer {
@@ -32,6 +37,8 @@ public class SceneRenderer {
 	
 	private WaterRenderer waterRenderer;
 	
+	private ShadowRenderer shadowRenderer;
+	
 	private static final int MAX_LIGHTS = 4;
 	
 	private Light[] lights = new Light[MAX_LIGHTS];
@@ -43,7 +50,7 @@ public class SceneRenderer {
 	private Matrix4f emptyMatrix = new Matrix4f();
 	
 	public SceneRenderer(Shader defaultShader, Shader normalMappedShader, Camera camera, TerrainRenderer terrainRenderer, 
-			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer) {
+			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer) {
 		this.defaultShader = defaultShader;
 		this.normalMappedShader = normalMappedShader;
 		this.camera = camera;
@@ -55,6 +62,7 @@ public class SceneRenderer {
 		this.skyboxRenderer = skyboxRenderer;
 		mousePicker = new MousePicker(camera);
 		this.waterRenderer = waterRenderer;
+		this.shadowRenderer = shadowRenderer;
 	}
 	
 	public void addLight(Light light) {
@@ -98,6 +106,16 @@ public class SceneRenderer {
 			camera.uploadTo(shader);
 		} else {
 			shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
+			emptyMatrix.set(camera.getViewMatrix());
+			emptyMatrix.m00(1);
+			emptyMatrix.m01(0);
+			emptyMatrix.m02(0);
+			emptyMatrix.m10(0);
+			emptyMatrix.m11(1);
+			emptyMatrix.m12(0);
+			emptyMatrix.m20(0);
+			emptyMatrix.m21(0);
+			emptyMatrix.m22(1);
 			shader.uploadMatrix("viewMatrix", emptyMatrix);
 		}
 		for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -158,11 +176,29 @@ public class SceneRenderer {
 		skyboxRenderer.render(camera);
 	}
 	
-	public void render(float delta, Mouse mouse, int width, int height) {
+	public void render(float delta, Mouse mouse, int width, int height, Engine engine) {
 		camera.update();
 		mousePicker.update(mouse, width, height);
+		shadowRenderer.render(lights[0].getPosition(), (shader) -> {
+			for (Geometry geometry : defaultEntityMap.keySet()) {
+				geometry.bind(1);
+				for (Entity entity : defaultEntityMap.get(geometry)) {
+					shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+					geometry.renderGeometry();
+				}
+				geometry.unbind(1);
+			}
+			for (Geometry geometry : normalMappedEntityMap.keySet()) {
+				geometry.bind(1);
+				for (Entity entity : normalMappedEntityMap.get(geometry)) {
+					shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+					geometry.renderGeometry();
+				}
+				geometry.unbind(1);
+			}
+		});
 		skyboxRenderer.update(delta);
-		waterRenderer.render(camera, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix), delta);
+		waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix), delta);
 	}
 	
 }

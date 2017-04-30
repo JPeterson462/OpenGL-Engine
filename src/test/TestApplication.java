@@ -31,18 +31,19 @@ import engine.particles.BasicParticleEmitter;
 import engine.physics.Body;
 import engine.physics.CubeCollisionBounds;
 import engine.physics.Universe;
-import engine.rendering.GUIRenderer;
 import engine.rendering.Geometry;
 import engine.rendering.Light;
 import engine.rendering.Material;
-import engine.rendering.ParticleRenderer;
-import engine.rendering.SceneRenderer;
 import engine.rendering.Shader;
-import engine.rendering.SkyboxRenderer;
-import engine.rendering.TerrainRenderer;
-import engine.rendering.TextRenderer;
 import engine.rendering.VertexTemplate;
-import engine.rendering.WaterRenderer;
+import engine.rendering.passes.GUIRenderer;
+import engine.rendering.passes.ParticleRenderer;
+import engine.rendering.passes.SceneRenderer;
+import engine.rendering.passes.ShadowRenderer;
+import engine.rendering.passes.SkyboxRenderer;
+import engine.rendering.passes.TerrainRenderer;
+import engine.rendering.passes.TextRenderer;
+import engine.rendering.passes.WaterRenderer;
 import engine.terrain.HeightmapTerrainGenerator;
 import engine.terrain.ProceduralTerrainGenerator;
 import engine.terrain.Terrain;
@@ -158,14 +159,19 @@ public class TestApplication {
 
 				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexSkybox.glsl", VertexTemplate.POSITION), e);
 
+				Light sun = new Light(new Vector3f(100000, 100000, -100000), new Vector3f(1.3f, 1.3f, 1.3f));
+				
 				ArrayList<WaterTile> waterTiles = new ArrayList<>();
 				waterTiles.add(new WaterTile(80, 22, 80));
 				Water water = new Water(waterTiles);
-				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"));
+				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"), 
+						Assets.newTexture("waterNormal.png"), sun);
+				
+				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION), e, camera);
 				
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						engine.getSettings().backgroundColor, skybox, waterRenderer);
-				sceneRenderer.addLight(new Light(new Vector3f(0, 10000, -7000), new Vector3f(0.4f, 0.4f, 0.4f)));
+						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer);
+				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
 				//				sceneRenderer.addLight(new Light(new Vector3f(293, 7, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
@@ -258,7 +264,7 @@ public class TestApplication {
 			}
 			//			universe.update(delta);
 			controller.update(delta, terrain);
-			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height);
+			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, engine);
 			particleRenderer.update(delta);
 			particleRenderer.render(e);
 			guiRenderer.render(e);

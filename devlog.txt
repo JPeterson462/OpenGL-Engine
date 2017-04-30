@@ -50,13 +50,11 @@
 	Finished audio backend
 	Simplex noise generation
 	Partial implementation of water rendering
+4-30-17:
+	Followed ThinMatrix water tutorials
+	Water most rendered (except for soft edges)
 	
 Remaining Tutorials:
-	Water:
-		- DuDv Maps
-		- Fresnel Effect
-		- Normal Maps
-		- Soft Edges
 	General:
 		- Shadow Mapping
 		- Percentage Closer Filtering
@@ -111,11 +109,12 @@ Skybox:
 
 Water:
 - fix rotation for reflection in water
-- normal mapping
+- fix soft edges (Water Tutorial 8)
 
 Other:
 - mouse picker usage: improved first person camera controls?
 - fix first person camera controller rotation
 
-Start at OpenGL Water Tutorial 7
+-- remove object allocation from ShadowBox
+
 Start at OpenGL Tutorial 38

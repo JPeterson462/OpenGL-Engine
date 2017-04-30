@@ -19,6 +19,11 @@ public class Geometry {
 			((VertexArrayObject) backendData).bind();
 	}
 	
+	public void bind(int attributes) {
+		if (backendData instanceof VertexArrayObject)
+			((VertexArrayObject) backendData).bind(attributes);
+	}
+	
 	public int getVertexCount() {
 		if (backendData instanceof VertexArrayObject)
 			return ((VertexArrayObject) backendData).getSize();
@@ -28,6 +33,11 @@ public class Geometry {
 	public void unbind() {
 		if (backendData instanceof VertexArrayObject)
 			((VertexArrayObject) backendData).unbind();
+	}
+
+	public void unbind(int attributes) {
+		if (backendData instanceof VertexArrayObject)
+			((VertexArrayObject) backendData).unbind(attributes);
 	}
 	
 	public int hashCode() {

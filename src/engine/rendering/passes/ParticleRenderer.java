@@ -1,4 +1,4 @@
-package engine.rendering;
+package engine.rendering.passes;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -12,6 +12,10 @@ import engine.Camera;
 import engine.Engine;
 import engine.particles.Particle;
 import engine.particles.ParticleEmitter;
+import engine.rendering.InstancedGeometry;
+import engine.rendering.Shader;
+import engine.rendering.Texture;
+import engine.rendering.Vertex;
 
 public class ParticleRenderer {
 	
