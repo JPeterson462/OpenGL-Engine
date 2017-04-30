@@ -91,10 +91,12 @@ public class TestApplication {
 	private static Music music;
 	
 	private static SoundEffect effect;
+	
+	private static long seed = System.currentTimeMillis();
 
 	private static TerrainGenerator newGenerator(int x, int z) {
-//		return new ProceduralTerrainGenerator(0, 35, 15, x, z);
-		return new HeightmapTerrainGenerator(heightmap, 50, 0, x, z);
+		return new ProceduralTerrainGenerator(seed, 35, 15, x, z);
+//		return new HeightmapTerrainGenerator(heightmap, 50, 0, x, z);
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {

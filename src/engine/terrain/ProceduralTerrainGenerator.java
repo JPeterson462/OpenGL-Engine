@@ -12,16 +12,14 @@ public class ProceduralTerrainGenerator implements TerrainGenerator {
 	
 	private static final float NOISE_RESOLUTION = 0.01f;
 	
-	private long seed;
-	
-	private OpenSimplexNoise noise = new OpenSimplexNoise();
+	private OpenSimplexNoise noise;
 	
 	private float maxHeight, minHeight;
 
 	public ProceduralTerrainGenerator(long seed, float maxHeight, float minHeight, int gridX, int gridZ) {
 		offset = new Vector2f(gridX * SIZE, gridZ * SIZE);
 		size = new Vector2f(SIZE, SIZE);
-		this.seed = seed;
+		noise = new OpenSimplexNoise(seed);
 		this.maxHeight = maxHeight;
 		this.minHeight = minHeight;
 	}
@@ -33,7 +31,7 @@ public class ProceduralTerrainGenerator implements TerrainGenerator {
 	
 	@Override
 	public float getHeightAt(float x, float z) {
-		return ((float) noise.eval(x * NOISE_RESOLUTION + seed, z * NOISE_RESOLUTION + seed)) * (maxHeight - minHeight) + minHeight;
+		return ((float) noise.eval(x * NOISE_RESOLUTION, z * NOISE_RESOLUTION)) * (maxHeight - minHeight) + minHeight;
 	}
 
 	@Override
