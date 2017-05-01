@@ -12,6 +12,6 @@
 	<classpathentry kind="lib" path="lib/lwjgl-stb.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl.jar"/>
 	<classpathentry kind="lib" path="lib/minlog-1.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL3"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,7 +8,7 @@ import utils.MathUtils;
 
 public class HeightmapTerrainGenerator implements TerrainGenerator {
 
-	private static final float SIZE = 500;
+	private static final float SIZE = 150;
 	
 	private float[][] heights;
 	

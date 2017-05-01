@@ -39,6 +39,10 @@ public class Assets {
 		return ModelImporter.loadModel("models/" + path, engine, computeTangents);
 	}
 	
+	public static Geometry newGeometry(Model model) {
+		return engine.getRenderingBackend().createGeometry(model.getVertices(), model.getIndices());
+	}
+	
 	public static Texture newTexture(String path) {
 		return engine.getRenderingBackend().createTexture(engine.getResource("textures/" + path), false, false);
 	}

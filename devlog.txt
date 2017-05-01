@@ -53,6 +53,7 @@
 4-30-17:
 	Followed ThinMatrix water tutorials
 	Water most rendered (except for soft edges)
+	Started shadow rendering (depth buffer isn't written)
 	
 Remaining Tutorials:
 	General:
@@ -72,6 +73,8 @@ Remaining Tutorials:
 	Skeletal:
 		- Skeletal Animation (3)
 		- Reading Collada Animation Files
+
+- Fix particle rendering
 
 Terrain:
 - navmesh for traveling on terrain
@@ -108,13 +111,10 @@ Skybox:
 - update fog color from skybox
 
 Water:
-- fix rotation for reflection in water
 - fix soft edges (Water Tutorial 8)
 
 Other:
 - mouse picker usage: improved first person camera controls?
-- fix first person camera controller rotation
-
--- remove object allocation from ShadowBox
+- fix first person camera controller rotation and movement
 
 Start at OpenGL Tutorial 38

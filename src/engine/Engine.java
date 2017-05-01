@@ -29,6 +29,8 @@ public class Engine {
 	
 	private int cycles = 0;
 	
+	private int lastFPS = 0;
+	
 	private Keyboard keyboard = new Keyboard();
 	
 	private Mouse mouse = new Mouse();
@@ -92,9 +94,7 @@ public class Engine {
 	}
 	
 	public float getFPS() {
-		if (cycles == 0)
-			return totalFrames;
-		return totalFrames / cycles;
+		return lastFPS;
 	}
 	
 	public void run() {
@@ -112,6 +112,7 @@ public class Engine {
 				lastSecond = System.currentTimeMillis();
 				totalFrames += frames;
 				cycles++;
+				lastFPS = frames;
 				frames = 0;
 			}
 			frames++;

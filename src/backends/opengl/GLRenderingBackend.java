@@ -1,6 +1,7 @@
 package backends.opengl;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
@@ -279,7 +282,6 @@ public class GLRenderingBackend implements RenderingBackend {
 				for (int i = 0; i < indexList.size(); i++) {
 					indices.put(i, indexList.get(i));
 				}
-				System.out.println(positionData);
 				InstancedVertexArrayObject instancedVAO = new InstancedVertexArrayObject(memory, positionData, positions, dimensions, instanceData, instancedDataLength, indexData, indices);
 				return new InstancedGeometry(instancedVAO) {
 					public void updateInstances(FloatBuffer instanceBuffer) {
@@ -372,7 +374,6 @@ public class GLRenderingBackend implements RenderingBackend {
 	@Override
 	public Framebuffer createFramebuffer(int width, int height, int colorAttachments, boolean hasDepthBuffer) {
 		GLFramebuffer glFbo = new GLFramebuffer(memory, colorAttachments, width, height, windowWidth, windowHeight);
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, glFbo.fboId);
 		int[] colorAttachmentList = new int[colorAttachments];
 		for (int i = 0; i < colorAttachments; i++) {
 			colorAttachmentList[i] = GLTextureBuilder.createEmptyTexture(width, height);
@@ -388,16 +389,24 @@ public class GLRenderingBackend implements RenderingBackend {
 			GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderbuffer);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
+			glFbo.checkStatus();
 			glFbo.unbind();
 			checkError();
 			return new Framebuffer(glFbo, new Renderbuffer(new GLRenderbuffer(renderbuffer, memory)), colorAttachmentTextures);
 		} else {
-			int depthTexture = GLTextureBuilder.createEmptyDepthTexture(width, height);
-			GL32.glFramebufferTexture(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, depthTexture, 0);
+			int texture = GL11.glGenTextures();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (ByteBuffer) null);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+			GL32.glFramebufferTexture(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, texture, 0);
+			glFbo.checkStatus();
 			glFbo.unbind();
 			checkError();
-			return new Framebuffer(glFbo, new Texture(new GLTexture(depthTexture, GL11.GL_TEXTURE_2D, memory), width, height, Texture.TEXTURE_ALPHA), colorAttachmentTextures);
+			return new Framebuffer(glFbo, new Texture(new GLTexture(texture, GL11.GL_TEXTURE_2D, memory), width, height, Texture.TEXTURE_ALPHA), colorAttachmentTextures);
 		}
 	}
 		

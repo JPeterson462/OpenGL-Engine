@@ -22,11 +22,19 @@ public class Image extends Widget {
 		this.path = path;
 		modelMatrix = new Matrix4f();
 	}
+	
+	public Image(String name, Texture texture) {
+		super(name);
+		this.texture = texture;
+		modelMatrix = new Matrix4f();
+	}
 
 	@Override
 	public void initialize() {
 		geometry = Assets.newQuad();
-		texture = Assets.newTexture(path);
+		if (texture == null) {
+			texture = Assets.newTexture(path);
+		}
 	}
 
 	@Override

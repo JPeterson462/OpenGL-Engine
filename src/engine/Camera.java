@@ -1,6 +1,7 @@
 package engine;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import engine.rendering.Shader;
@@ -8,6 +9,10 @@ import engine.rendering.Shader;
 public abstract class Camera {
 	
 	private Matrix4f projectionMatrix, viewMatrix;
+	
+	private Vector3f emptyVector = new Vector3f();
+	
+	private Quaternionf emptyQuaternion = new Quaternionf();
 	
 	public abstract void newProjectionMatrix();
 	
@@ -24,7 +29,11 @@ public abstract class Camera {
 	}
 	
 	public Vector3f getCenter() {
-		return new Vector3f();
+		return emptyVector;
+	}
+	
+	public Quaternionf getOrientation() {
+		return emptyQuaternion;
 	}
 	
 	public Matrix4f getProjectionMatrix() {
@@ -39,7 +48,22 @@ public abstract class Camera {
 		newProjectionMatrix();
 		newViewMatrix();
 	}
+
+	public float getPitch() {
+		throw new IllegalStateException();
+	}
 	
-	//getOrientation()
+	public float getYaw() {
+		throw new IllegalStateException();
+	}
+
+	public void setPitch(float pitch) {
+		throw new IllegalStateException();
+	}
+	
+	public void setYaw(float yaw) {
+		throw new IllegalStateException();
+	}
+
 
 }

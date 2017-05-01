@@ -35,6 +35,8 @@ public class WaterRenderer {
 	
 	private static final float WAVE_SPEED = 0.01f;
 	
+	public static float WATER_HEIGHT = 50;
+	
 	private float moveFactor = 0;
 	
 	private Vector3f lightColor, lightPosition;
@@ -78,15 +80,17 @@ public class WaterRenderer {
 		if (moveFactor > 1) {
 			moveFactor -= 1;
 		}
-		float waterHeight = 22;
-		float softEdgeFix = 1f;
+		float waterHeight = WATER_HEIGHT;
+		float softEdgeFix = 0.5f;
 		float distanceFromWater = camera.getCenter().y - waterHeight;
 		camera.getCenter().y -= 2 * distanceFromWater;
+		camera.setPitch(-camera.getPitch());
 		camera.update();
 		reflectionBuffer.bind();
 		sceneRenderCall.renderPlane(new Vector4f(0, 1, 0, -waterHeight + softEdgeFix), false);
 		reflectionBuffer.unbind();
 		camera.getCenter().y += 2 * distanceFromWater;
+		camera.setPitch(-camera.getPitch());
 		camera.update();
 		refractionBuffer.bind();
 		sceneRenderCall.renderPlane(new Vector4f(0, -1, 0, waterHeight), false);

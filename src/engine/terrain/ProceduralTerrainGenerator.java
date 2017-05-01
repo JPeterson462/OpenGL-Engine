@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 
 public class ProceduralTerrainGenerator implements TerrainGenerator {
 	
-	private static final float SIZE = 500;
+	private static final float SIZE = 150;
 	
 	private Vector2f offset, size;
 

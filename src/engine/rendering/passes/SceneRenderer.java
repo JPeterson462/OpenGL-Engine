@@ -107,15 +107,6 @@ public class SceneRenderer {
 		} else {
 			shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
 			emptyMatrix.set(camera.getViewMatrix());
-			emptyMatrix.m00(1);
-			emptyMatrix.m01(0);
-			emptyMatrix.m02(0);
-			emptyMatrix.m10(0);
-			emptyMatrix.m11(1);
-			emptyMatrix.m12(0);
-			emptyMatrix.m20(0);
-			emptyMatrix.m21(0);
-			emptyMatrix.m22(1);
 			shader.uploadMatrix("viewMatrix", emptyMatrix);
 		}
 		for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -170,7 +161,7 @@ public class SceneRenderer {
 	}
 	
 	private void renderScene(Vector4f plane, boolean sendViewMatrix) {
-		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane);
+		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap());
 		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix);
 		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix);
 		skyboxRenderer.render(camera);

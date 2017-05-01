@@ -5,6 +5,13 @@ import org.joml.Vector3f;
 
 public class MathUtils {
 
+	public static float getPitch(Vector3f direction) {
+	}
+	
+	public static float getYaw(Vector3f direction) {
+		return (float) Math.atan2(direction.x, -direction.y);
+	}
+	
 	public static Vector3f maxY(Vector3f... vectors) {
 		float maxY = vectors[0].y;
 		Vector3f max = vectors[0];

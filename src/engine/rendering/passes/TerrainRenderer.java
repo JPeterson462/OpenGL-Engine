@@ -7,6 +7,7 @@ import org.joml.Vector4f;
 import engine.Camera;
 import engine.rendering.Light;
 import engine.rendering.Shader;
+import engine.rendering.Texture;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainTile;
 
@@ -21,9 +22,16 @@ public class TerrainRenderer {
 	public TerrainRenderer(Shader shader, Terrain terrain) {
 		this.shader = shader;
 		this.terrain = terrain;
+		shader.bind();
+		shader.uploadInt("backgroundTexture", 0);
+		shader.uploadInt("rTexture", 1);
+		shader.uploadInt("gTexture", 2);
+		shader.uploadInt("bTexture", 3);
+		shader.uploadInt("blendMapTexture", 4);
+		shader.uploadInt("shadowMap", 5);
 	}
 	
-	public void render(Camera camera, Light[] lights, int lightCount, int maxLights, Vector3f skyColor, Vector4f clipPlane) {
+	public void render(Camera camera, Light[] lights, int lightCount, int maxLights, Vector3f skyColor, Vector4f clipPlane, Matrix4f shadowMapMatrix, Texture shadowDepthMap) {
 //		engine.setCulling(false);
 		shader.bind();
 		camera.uploadTo(shader);
@@ -39,6 +47,8 @@ public class TerrainRenderer {
 				shader.uploadVector("attenuation[" + i + "]", new Vector3f(1, 0, 0));
 			}
 		}
+		shader.uploadMatrix("toShadowMapSpace", shadowMapMatrix);
+		shadowDepthMap.bind(5);
 		shader.uploadVector("skyColor", skyColor);
 		TerrainTile[][] tiles = terrain.getTiles();
 		Vector3f player = camera.getCenter();

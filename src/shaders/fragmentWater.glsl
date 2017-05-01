@@ -20,7 +20,7 @@ out vec4 out_Color;
 const float waveStrength = 0.04;
 const float shineDamper = 20.0;
 const float reflectivity = 0.5;
-const float depthFactor = 10.0;
+const float depthFactor = 5.0;
 
 void main(void) {
 	vec2 ndc = (pass_ClipSpace.xy / pass_ClipSpace.w) / 2.0 + 0.5;
@@ -35,7 +35,7 @@ void main(void) {
 	float waterDepth = floorDistance - waterDistance;
 	vec2 distortedTexCoord = texture2D(dudvMap, vec2(pass_TexCoord.x + moveFactor, pass_TexCoord.y)).rg * 0.1;
 	distortedTexCoord = pass_TexCoord + vec2(distortedTexCoord.x, distortedTexCoord.y + moveFactor);
-	vec2 distortion = (texture2D(dudvMap, distortedTexCoord).rg * 2.0 - 1.0) * waveStrength;
+	vec2 distortion = (texture2D(dudvMap, distortedTexCoord).rg * 2.0 - 1.0) * waveStrength * clamp(waterDepth / 5.0, 0.0, 1.0);
 	refractTexCoord += distortion;
 	refractTexCoord = clamp(refractTexCoord, 0.001, 0.999);
 	reflectTexCoord += distortion;
@@ -52,8 +52,9 @@ void main(void) {
 	vec3 reflectedLight = reflect(normalize(pass_FromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0);
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = lightColor * specular * reflectivity;
+	vec3 specularHighlights = lightColor * specular * reflectivity * clamp(waterDepth / 5.0, 0.0, 1.0);
 	out_Color = mix(reflectColor, refractColor, refractiveFactor);
 	out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights, 0.0);
-	out_Color.a = clamp(waterDepth / depthFactor, 0.0, 1.0);
+	//out_Color.a = clamp(waterDepth / depthFactor, 0.0, 1.0);
+	out_Color.a = clamp(waterDepth / depthFactor, -0.01, 0.99) + 0.01;
 }

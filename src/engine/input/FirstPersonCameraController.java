@@ -1,5 +1,6 @@
 package engine.input;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import engine.FirstPersonCamera;
@@ -17,8 +18,6 @@ public class FirstPersonCameraController {
 	private Body body;
 	
 	private float speed = 50;
-	
-	private Vector3f target = new Vector3f();
 	
 	private float mouseSensitivity;
 	
@@ -50,8 +49,8 @@ public class FirstPersonCameraController {
 	}
 	
 	public void update(float delta, Terrain terrain) {
-		Vector3f movementForward = new Vector3f(0, 0, speed);
-		movementForward.rotate(body.getOrientation());
+		Vector3f movementForward = new Vector3f(speed, 0, 0);
+		movementForward.rotate(new Quaternionf().rotationY(-camera.getYaw()));
 		Vector3f movementSideways = new Vector3f(movementForward).cross(new Vector3f(0, 1, 0));
 		Vector3f totalMovement = new Vector3f();
 		if (keyboard.isKeyDown(Key.W)) {
@@ -68,10 +67,11 @@ public class FirstPersonCameraController {
 		}
 		body.getLinearVelocity().set(totalMovement);
 		if (mouseX >= 0 && mouseY >= 0) {
-			float maxRotation = (float) (3 * Math.PI) * mouseSensitivity * delta;
+			float maxRotation = (float) (20 * Math.PI) * mouseSensitivity * delta;
 			float maxDx = 1.5f, maxDy = 1.5f;
 			float dx = mouse.getMouseX() - mouseX, dy = mouse.getMouseY() - mouseY;
-			body.getOrientation().rotateXYZ(maxRotation * dy / maxDy, -maxRotation * dx / maxDx, 0);
+			camera.setPitch(camera.getPitch() + maxRotation * dy / maxDy);
+			camera.setYaw(camera.getYaw() + maxRotation * dx / maxDx);
 		}
 		
 		// START TEST PHYSICS
@@ -81,10 +81,8 @@ public class FirstPersonCameraController {
 			
 		mouseX = mouse.getMouseX();
 		mouseY = mouse.getMouseY();
-		Vector3f direction = new Vector3f(0, 0, 100);
-		target.set(direction).rotate(body.getOrientation()).add(body.getPosition());
+		
 		camera.getPosition().set(body.getPosition()).add(0, height, 0);
-		camera.getTarget().set(target).add(0, height, 0);
 	}
 
 }

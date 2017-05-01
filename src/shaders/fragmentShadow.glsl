@@ -1,7 +1,5 @@
 #version 330
 
-uniform sampler2D modelTexture;
-
 out vec4 out_Color;
 
 void main(void) {

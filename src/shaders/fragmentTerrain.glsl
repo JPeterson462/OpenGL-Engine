@@ -7,6 +7,7 @@ uniform sampler2D rTexture;
 uniform sampler2D gTexture;
 uniform sampler2D bTexture;
 uniform sampler2D blendMapTexture;
+uniform sampler2D shadowMap;
 
 uniform vec3 lightColor[MAX_LIGHTS];
 
@@ -22,10 +23,16 @@ in vec3 pass_SurfaceNormal;
 in vec3 pass_ToLightVector[MAX_LIGHTS];
 in vec3 pass_ToCameraVector;
 in float pass_Visibility;
+in vec4 pass_ShadowCoords;
 
 out vec4 out_Color;
 
 void main(void) {
+	float objectNearestLight = texture2D(shadowMap, pass_ShadowCoords.xy).r;
+	float lightFactor = 1.0;
+	if (pass_ShadowCoords.z > objectNearestLight) {
+		lightFactor = 0.5;
+	}
 	vec4 blendMapColor = texture2D(blendMapTexture, pass_TexCoord);
 	float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
 	vec2 tiledCoords = pass_TexCoord * 75.0;
@@ -55,7 +62,7 @@ void main(void) {
 		totalDiffuse += diffuse / attenuationFactor;
 		totalSpecular += specular / attenuationFactor;
 	}
-	totalDiffuse = max(totalDiffuse, 0.2);
+	totalDiffuse = max(totalDiffuse, 0.2) * lightFactor;
 	out_Color = vec4(totalDiffuse, 1.0) * totalColor + vec4(totalSpecular, 1.0);
 	out_Color = mix(vec4(skyColor,1.0), out_Color, pass_Visibility);
 }

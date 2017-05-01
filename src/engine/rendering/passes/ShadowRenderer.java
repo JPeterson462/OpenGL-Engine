@@ -26,6 +26,8 @@ public class ShadowRenderer {
 	
 	private Matrix4f lightViewMatrix = new Matrix4f();
 	
+	private Matrix4f projectionViewMatrix = new Matrix4f();
+	
 	private Matrix4f offset = createOffset();
 	
 	private float nearPlane;
@@ -38,7 +40,7 @@ public class ShadowRenderer {
 	}
 	
 	public Matrix4f getToShadowSpaceMatrix() {
-		return new Matrix4f(offset).mul(projectionMatrix).mul(lightViewMatrix);
+		return new Matrix4f(offset).mul(projectionViewMatrix);
 	}
 	
 	public void render(Vector3f sunPosition, EntityRender entityRenderCall) {
@@ -46,6 +48,7 @@ public class ShadowRenderer {
 		Vector3f lightDirection = new Vector3f(-sunPosition.x, -sunPosition.y, -sunPosition.z);
 		updateOrthoProjectionMatrix(shadowBox.getWidth(), shadowBox.getHeight(), shadowBox.getLength());
 		updateLightViewMatrix(lightDirection, shadowBox.getCenter());
+		projectionMatrix.mul(lightViewMatrix, projectionViewMatrix);
 		shadowBuffer.bind();
 		shader.bind();
 		shader.uploadMatrix("projectionMatrix", projectionMatrix);
