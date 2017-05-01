@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 public class MathUtils {
 
 	public static float getPitch(Vector3f direction) {
+		return (float) Math.atan2(Math.sqrt(direction.x * direction.x + direction.z * direction.z), direction.y);
 	}
 	
 	public static float getYaw(Vector3f direction) {
