@@ -1,5 +1,7 @@
 package engine.rendering;
 
+import java.nio.FloatBuffer;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -8,6 +10,8 @@ import org.joml.Vector4f;
 public interface UniformSetter {
 	
 	public void uploadMatrix(String uniform, Matrix4f matrix);
+	
+	public void uploadMatrix(String uniform, FloatBuffer matrix);
 	
 	public void uploadVector(String uniform, Vector3f vector);
 	

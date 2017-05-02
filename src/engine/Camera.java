@@ -14,6 +14,8 @@ public abstract class Camera {
 	
 	private Quaternionf emptyQuaternion = new Quaternionf();
 	
+	private Matrix4f projectionViewMatrix = new Matrix4f();
+	
 	public abstract void newProjectionMatrix();
 	
 	public abstract void newViewMatrix();
@@ -47,6 +49,7 @@ public abstract class Camera {
 	public void update() {
 		newProjectionMatrix();
 		newViewMatrix();
+		projectionMatrix.mul(viewMatrix, projectionViewMatrix);
 	}
 
 	public float getPitch() {
@@ -64,6 +67,9 @@ public abstract class Camera {
 	public void setYaw(float yaw) {
 		throw new IllegalStateException();
 	}
-
+	
+	public Matrix4f getProjectionViewMatrix() {
+		return projectionViewMatrix;
+	}
 
 }

@@ -1,5 +1,7 @@
 package engine.rendering;
 
+import java.nio.FloatBuffer;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -44,6 +46,11 @@ public class Shader implements UniformSetter {
 	}
 
 	@Override
+	public void uploadMatrix(String uniform, FloatBuffer matrix) {
+		setter.uploadMatrix(uniform, matrix);
+	}
+	
+	@Override
 	public void uploadVector(String uniform, Vector3f vector) {
 		setter.uploadVector(uniform, vector);
 	}
@@ -67,5 +74,5 @@ public class Shader implements UniformSetter {
 	public void uploadVector(String uniform, Vector4f vector) {
 		setter.uploadVector(uniform, vector);
 	}
-	
+
 }

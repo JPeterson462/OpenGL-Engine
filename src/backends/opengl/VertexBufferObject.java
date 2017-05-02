@@ -8,6 +8,7 @@ import java.nio.ShortBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import com.esotericsoftware.minlog.Log;
 
@@ -66,7 +67,7 @@ public class VertexBufferObject {
 		else if (type.equals(Short.class))
 			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_UNSIGNED_SHORT, false, elements << 1, 0);
 		else if (type.equals(Integer.class))
-			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_UNSIGNED_INT, false, elements << 2, 0);
+			GL30.glVertexAttribIPointer(attribute, elements, GL11.GL_INT, elements << 2, 0);
 		else
 			Log.warn("Unknown buffer type: " + type.getName());
 	}

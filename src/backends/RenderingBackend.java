@@ -25,6 +25,8 @@ public interface RenderingBackend {
 	
 	public void setDepthBuffer(boolean enabled);
 	
+	public void setBlending(boolean enabled);
+	
 	public void setAdditiveBlending(boolean enabled);
 	
 	public void setBackgroundColor(float red, float green, float blue);

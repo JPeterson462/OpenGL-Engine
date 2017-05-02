@@ -74,6 +74,14 @@ public class GLRenderingBackend implements RenderingBackend {
 		GL11.glDepthMask(enabled);
 	}
 
+	public void setBlending(boolean enabled) {
+		if (enabled) {
+			 GL11.glEnable(GL11.GL_BLEND);
+		} else {
+			 GL11.glDisable(GL11.GL_BLEND);
+		}
+	}
+	
 	public void setAdditiveBlending(boolean enabled) {
 		if (enabled) {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);

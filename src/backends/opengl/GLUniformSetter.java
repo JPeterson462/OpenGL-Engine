@@ -41,6 +41,10 @@ public class GLUniformSetter implements UniformSetter {
 	}
 
 	@Override
+	public void uploadMatrix(String uniform, FloatBuffer buffer) {
+		GL20.glUniformMatrix4fv(locate(uniform), false, buffer);
+	}
+	@Override
 	public void uploadVector(String uniform, Vector3f vector) {
 		GL20.glUniform3f(locate(uniform), vector.x, vector.y, vector.z);
 	}

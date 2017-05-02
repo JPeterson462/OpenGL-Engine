@@ -17,14 +17,16 @@ import org.joml.Vector4f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.xml.sax.SAXException;
 
-import animatedModel.AnimatedModel;
-import animation.Animation;
 import engine.Assets;
 import engine.Engine;
 import engine.Entity;
 import engine.FirstPersonCamera;
 import engine.RawImage;
 import engine.Settings;
+import engine.animation.AnimatedModel;
+import engine.animation.AnimatedModelLoader;
+import engine.animation.Animation;
+import engine.animation.AnimationLoader;
 import engine.audio.AudioFormat;
 import engine.audio.Music;
 import engine.audio.SoundEffect;
@@ -48,6 +50,7 @@ import engine.rendering.Light;
 import engine.rendering.Material;
 import engine.rendering.Shader;
 import engine.rendering.VertexTemplate;
+import engine.rendering.passes.AnimatedModelRenderer;
 import engine.rendering.passes.DefaultGUIRenderer;
 import engine.rendering.passes.GUIRenderer;
 import engine.rendering.passes.ParticleRenderer;
@@ -69,11 +72,6 @@ import engine.text.Font;
 import engine.text.FontImporter;
 import engine.water.Water;
 import engine.water.WaterTile;
-import loaders.AnimatedModelLoader;
-import loaders.AnimationLoader;
-import renderer.AnimatedModelRenderer;
-import renderer.ICamera;
-import utils.MatrixConv;
 import utils.Screenshot;
 import utils.StringUtils;
 
@@ -117,7 +115,7 @@ public class TestApplication {
 	
 	private static AnimatedModelRenderer modelRenderer;
 	
-	private static ICamera camera;
+	private static FirstPersonCamera camera;
 	
 	private static AnimatedModel animatedModel;
 
@@ -130,32 +128,7 @@ public class TestApplication {
 		WaterRenderer.WATER_HEIGHT = 20;//TEST
 		Settings settings = new Settings(new FileInputStream("settings.cfg"));
 		settings.write(new FileOutputStream("settings.cfg"));
-		FirstPersonCamera camera = new FirstPersonCamera(settings.fov, settings.aspectRatio, settings.nearPlane, settings.farPlane, new Vector3f(30, 10, 30));
-		TestApplication.camera = new ICamera() {
-
-			@Override
-			public Matrix4f getViewMatrix() {
-				return MatrixConv.convert(camera.getViewMatrix());
-			}
-
-			@Override
-			public Matrix4f getProjectionMatrix() {
-				return MatrixConv.convert(camera.getProjectionMatrix());
-			}
-
-			@Override
-			public Matrix4f getProjectionViewMatrix() {
-				org.joml.Matrix4f dest = new org.joml.Matrix4f();
-				camera.getProjectionMatrix().mul(camera.getViewMatrix(), dest);
-				return MatrixConv.convert(dest);
-			}
-
-			@Override
-			public void move() {
-				
-			}
-			
-		};
+		camera = new FirstPersonCamera(settings.fov, settings.aspectRatio, settings.nearPlane, settings.farPlane, new Vector3f(30, 10, 30));
 		Engine engine = new Engine(settings);
 		ModelImporter.flags.setBit(0, true);
 		ModelImporter.flags.setBit(1, false);
@@ -243,7 +216,7 @@ public class TestApplication {
 				
 				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
 				
-				modelRenderer = new AnimatedModelRenderer();
+				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
 				
 				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
 				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), engine.getResource("textures/animatedDiffuse.png"));
@@ -363,10 +336,10 @@ public class TestApplication {
 //			soundtrack.update(e);
 			//			universe.update(delta);
 			controller.update(delta, terrain);
-			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, engine);
+			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, e);
 			
 			animatedModel.update(delta);
-			modelRenderer.render(animatedModel, TestApplication.camera, new org.lwjgl.util.vector.Vector3f(0.2f, -0.3f, -0.8f));
+			modelRenderer.render(animatedModel, camera, new org.lwjgl.util.vector.Vector3f(0.2f, -0.3f, -0.8f), e);
 			
 //			particleRenderer.update(delta);
 //			particleRenderer.render(e);

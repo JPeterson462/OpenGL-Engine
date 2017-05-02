@@ -44,8 +44,16 @@ public class Assets {
 		return engine.getRenderingBackend().createGeometry(model.getVertices(), model.getIndices());
 	}
 	
+	public static Geometry newGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList) {
+		return engine.getRenderingBackend().createGeometry(vertices, indexList);
+	}
+	
 	public static Texture newTexture(String path) {
 		return engine.getRenderingBackend().createTexture(engine.getResource("textures/" + path), false, false);
+	}
+	
+	public static Texture newTexture(InputStream stream) {
+		return engine.getRenderingBackend().createTexture(stream, false, false);
 	}
 	
 	public static Texture newCubemap(String... paths) {
