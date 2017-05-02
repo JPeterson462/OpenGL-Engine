@@ -22,6 +22,8 @@ public interface AudioBackend {
 	
 	public void setBackgroundMusic(Music music);
 	
+	public boolean isBackgroundMusicDonePlaying();
+	
 	public void playSoundEffect(SoundEffect effect);
 	
 	public void playSoundEffect(SoundEffect effect, Vector3f position);

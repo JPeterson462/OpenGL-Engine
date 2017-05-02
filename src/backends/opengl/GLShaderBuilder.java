@@ -38,19 +38,30 @@ public class GLShaderBuilder {
 			case POSITION_TEXCOORD:
 				GL20.glBindAttribLocation(programId, 0, "in_Position");
 				GL20.glBindAttribLocation(programId, 1, "in_TexCoord");
+				break;
 			case POSITION_TEXCOORD_NORMAL:
 				GL20.glBindAttribLocation(programId, 0, "in_Position");
 				GL20.glBindAttribLocation(programId, 1, "in_TexCoord");
 				GL20.glBindAttribLocation(programId, 2, "in_Normal");
+				break;
 			case POSITION_TEXCOORD_NORMAL_TANGENT:
 				GL20.glBindAttribLocation(programId, 0, "in_Position");
 				GL20.glBindAttribLocation(programId, 1, "in_TexCoord");
 				GL20.glBindAttribLocation(programId, 2, "in_Normal");
 				GL20.glBindAttribLocation(programId, 3, "in_Tangent");
+				break;
+			case POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT:
+				GL20.glBindAttribLocation(programId, 0, "in_Position");
+				GL20.glBindAttribLocation(programId, 1, "in_TexCoord");
+				GL20.glBindAttribLocation(programId, 2, "in_Normal");
+				GL20.glBindAttribLocation(programId, 3, "in_Joints");
+				GL20.glBindAttribLocation(programId, 4, "in_Weights");
+				break;
 			case POSITION_TEXCOORD_COLOR:
 				GL20.glBindAttribLocation(programId, 0, "in_Position");
 				GL20.glBindAttribLocation(programId, 1, "in_TexCoord");
 				GL20.glBindAttribLocation(programId, 2, "in_Color");
+				break;
 			default:
 				break;
 		}

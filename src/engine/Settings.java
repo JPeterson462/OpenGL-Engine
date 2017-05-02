@@ -40,6 +40,8 @@ public class Settings {
 	
 	public final boolean resizable;
 	
+	public final boolean multisample;
+	
 	public final String title;
 	
 	public final Vector3f backgroundColor;
@@ -61,6 +63,7 @@ public class Settings {
 		farPlane = 1000f;
 		nativeResolution = true;
 		resizable = false;
+		multisample = false;
 		title = "Application";
 		backgroundColor = new Vector3f(135f / 256f, 206f / 256f, 250f / 256f);
 		windowIcons = new String[] {

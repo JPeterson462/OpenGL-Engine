@@ -27,7 +27,6 @@ public class GLFramebuffer {
 		if (buffers.length > 0) {
 			GL20.glDrawBuffers(buffers);
 		} else {
-			System.out.println("No color buffer");
 			GL11.glDrawBuffer(GL11.GL_NONE);
 			GL11.glReadBuffer(GL11.GL_NONE);
 		}

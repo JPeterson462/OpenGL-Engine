@@ -28,6 +28,10 @@ public class SceneRenderer {
 	private HashMap<Geometry, ArrayList<Entity>> defaultEntityMap = new HashMap<>();
 	
 	private HashMap<Geometry, ArrayList<Entity>> normalMappedEntityMap = new HashMap<>();
+
+	private HashMap<Geometry, ArrayList<Entity>> defaultAnimatedEntityMap = new HashMap<>();
+	
+	private HashMap<Geometry, ArrayList<Entity>> normalMappedAnimatedEntityMap = new HashMap<>();
 	
 	private Vector3f skyColor;
 	
@@ -38,6 +42,10 @@ public class SceneRenderer {
 	private WaterRenderer waterRenderer;
 	
 	private ShadowRenderer shadowRenderer;
+
+	private PostProcessingRenderer postProcessingRenderer;
+	
+	private AnimatedModelRenderer animatedModelRenderer;
 	
 	private static final int MAX_LIGHTS = 4;
 	
@@ -50,7 +58,8 @@ public class SceneRenderer {
 	private Matrix4f emptyMatrix = new Matrix4f();
 	
 	public SceneRenderer(Shader defaultShader, Shader normalMappedShader, Camera camera, TerrainRenderer terrainRenderer, 
-			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer) {
+			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer, 
+			PostProcessingRenderer postProcessingRenderer, AnimatedModelRenderer animatedModelRenderer) {
 		this.defaultShader = defaultShader;
 		this.normalMappedShader = normalMappedShader;
 		this.camera = camera;
@@ -63,6 +72,8 @@ public class SceneRenderer {
 		mousePicker = new MousePicker(camera);
 		this.waterRenderer = waterRenderer;
 		this.shadowRenderer = shadowRenderer;
+		this.postProcessingRenderer = postProcessingRenderer;
+		this.animatedModelRenderer = animatedModelRenderer;
 	}
 	
 	public void addLight(Light light) {
@@ -71,10 +82,18 @@ public class SceneRenderer {
 	}
 	
 	public void addEntity(Entity entity) {
-		if (entity.getMaterial().hasNormalTexture()) {
-			addEntity(entity, normalMappedEntityMap);
+		if (entity.isAnimated()) {
+//			if (entity.getMaterial().hasNormalTexture()) {
+//				addEntity(entity, normalMappedAnimatedEntityMap);
+//			} else {
+				addEntity(entity, defaultAnimatedEntityMap);
+//			}
 		} else {
-			addEntity(entity, defaultEntityMap);
+			if (entity.getMaterial().hasNormalTexture()) {
+				addEntity(entity, normalMappedEntityMap);
+			} else {
+				addEntity(entity, defaultEntityMap);
+			}
 		}
 	}
 	
@@ -91,6 +110,14 @@ public class SceneRenderer {
 	
 	public Vector3f getSkyColor() {
 		return skyColor;
+	}
+	
+	private void renderAnimated(HashMap<Geometry, ArrayList<Entity>> entityMap, Engine engine, Vector3f lightDirection, float delta) {
+		for (ArrayList<Entity> entities : entityMap.values()) {
+			for (Entity entity : entities) {
+				animatedModelRenderer.render(entity.getAnimatedModel(), camera, engine, lightDirection, delta);
+			}
+		}
 	}
 	
 	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix) {
@@ -160,36 +187,43 @@ public class SceneRenderer {
 		shader.unbind();
 	}
 	
-	private void renderScene(Vector4f plane, boolean sendViewMatrix) {
+	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta) {
 		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap());
 		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix);
 		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix);
+		renderAnimated(defaultAnimatedEntityMap, engine, new Vector3f(0, -1, 0), delta);
+		renderAnimated(normalMappedAnimatedEntityMap, engine, new Vector3f(0, -1, 0), delta);
 		skyboxRenderer.render(camera);
 	}
 	
 	public void render(float delta, Mouse mouse, int width, int height, Engine engine) {
 		camera.update();
 		mousePicker.update(mouse, width, height);
+		engine.getRenderingBackend().setDepth(true);
 		shadowRenderer.render(lights[0].getPosition(), (shader) -> {
 			for (Geometry geometry : defaultEntityMap.keySet()) {
-				geometry.bind(1);
+				geometry.bind();
 				for (Entity entity : defaultEntityMap.get(geometry)) {
 					shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+					entity.getMaterial().getDiffuseTexture().bind(0);
 					geometry.renderGeometry();
 				}
-				geometry.unbind(1);
+				geometry.unbind();
 			}
 			for (Geometry geometry : normalMappedEntityMap.keySet()) {
-				geometry.bind(1);
+				geometry.bind();
 				for (Entity entity : normalMappedEntityMap.get(geometry)) {
 					shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+					entity.getMaterial().getDiffuseTexture().bind(0);
 					geometry.renderGeometry();
 				}
-				geometry.unbind(1);
+				geometry.unbind();
 			}
 		});
-		skyboxRenderer.update(delta);
-		waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix), delta);
+		postProcessingRenderer.render(engine, () -> {
+			skyboxRenderer.update(delta);
+			waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix, engine, delta), delta);
+		});
 	}
 	
 }

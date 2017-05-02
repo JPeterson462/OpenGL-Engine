@@ -36,7 +36,9 @@ public class ShadowRenderer {
 		nearPlane = engine.getSettings().nearPlane;
 		this.shader = shader;
 		shadowBox = new ShadowBox(lightViewMatrix, camera, engine.getSettings().nearPlane, engine.getSettings().fov, engine.getSettings().aspectRatio);
-		shadowBuffer = engine.getRenderingBackend().createFramebuffer(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0, false);
+		shadowBuffer = engine.getRenderingBackend().createFramebuffer(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, false);
+		shader.bind();
+		shader.uploadInt("modelTexture", 0);
 	}
 	
 	public Matrix4f getToShadowSpaceMatrix() {
@@ -51,8 +53,7 @@ public class ShadowRenderer {
 		projectionMatrix.mul(lightViewMatrix, projectionViewMatrix);
 		shadowBuffer.bind();
 		shader.bind();
-		shader.uploadMatrix("projectionMatrix", projectionMatrix);
-		shader.uploadMatrix("viewMatrix", lightViewMatrix);
+		shader.uploadMatrix("projectionViewMatrix", projectionViewMatrix);
 		entityRenderCall.renderScene(shader);
 		shader.unbind();
 		shadowBuffer.unbind();

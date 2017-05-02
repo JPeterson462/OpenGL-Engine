@@ -1,49 +1,37 @@
 package engine.rendering.passes;
 
-import java.util.ArrayList;
-
 import org.joml.Vector4f;
 
 import engine.Camera;
 import engine.Engine;
-import engine.OrthographicCamera;
-import engine.rendering.Geometry;
+import engine.gui.TextWidget;
+import engine.gui.Widget;
 import engine.rendering.Shader;
 import engine.rendering.Texture;
 import engine.text.TextBuffer;
 import engine.text.TextEffect;
 
-public class TextRenderer {
+public class TextRenderer implements WidgetRenderer {
 	
 	private Shader shader;
 	
-	private ArrayList<TextBuffer> textBuffers;
-
-	private Camera camera;
-	
 	public TextRenderer(Shader shader, float width, float height) {
 		this.shader = shader;
-		textBuffers = new ArrayList<>();
-		camera = new OrthographicCamera(width, height);
-		shader.bind();
-		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
-		shader.unbind();
 	}	
 	
-	public void addText(TextBuffer buffer) {
-		textBuffers.add(buffer);
-	}
-	
-	public void render(Engine engine) {
-		camera.update();
+	@Override
+	public void bind(Camera camera, Engine engine) {
 		engine.getRenderingBackend().setDepth(false);
 		shader.bind();
-		Geometry lastGeometry = null;
-		Texture lastTexture = null;
-		for (int i = 0; i < textBuffers.size(); i++) {
-			TextBuffer buffer = textBuffers.get(i);
+		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
+	}
+
+	@Override
+	public void render(Widget widget, Engine engine) {
+		if (widget instanceof TextWidget) {
+			TextBuffer buffer = ((TextWidget) widget).getBuffer();
 			if (buffer.getText().length() == 0)
-				continue; // Don't render empty text buffers
+				return; // Don't render empty text buffers
 			shader.uploadMatrix("viewMatrix", buffer.getViewMatrix());
 			TextEffect effect = buffer.getEffect();
 			shader.uploadVector("textEffect", new Vector4f(effect.getLineWidth(), effect.getSharpness(), effect.getBorderWidth(), effect.getOffset().x));
@@ -52,13 +40,13 @@ public class TextRenderer {
 			buffer.getGeometry().bind();
 			texture.bind(0);
 			buffer.getGeometry().renderGeometry();
-			lastGeometry = buffer.getGeometry();
-			lastTexture = texture;
+			buffer.getGeometry().unbind();
+			texture.unbind();
 		}
-		if (lastGeometry != null) {
-			lastGeometry.unbind();
-			lastTexture.unbind();
-		}
+	}
+
+	@Override
+	public void unbind(Engine engine) {
 		shader.unbind();
 		engine.getRenderingBackend().setDepth(true);
 	}

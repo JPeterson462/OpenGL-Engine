@@ -12,6 +12,7 @@ import com.esotericsoftware.minlog.Log;
 import engine.audio.AudioFormat;
 import engine.audio.Music;
 import engine.audio.SoundEffect;
+import engine.audio.Soundtrack;
 import engine.models.Model;
 import engine.models.ModelImporter;
 import engine.rendering.Framebuffer;
@@ -88,6 +89,22 @@ public class Assets {
 		return new TerrainTexturePack(Material.NO_REFLECTIVITY, textures);
 	}
 	
+	public static Geometry newFullscreenQuad() {
+		ArrayList<Vertex> vertices = new ArrayList<>();
+		vertices.add(new Vertex(new Vector3f(-1, -1, 0), new Vector2f(0, 0)));
+		vertices.add(new Vertex(new Vector3f(1, -1, 0), new Vector2f(1, 0)));
+		vertices.add(new Vertex(new Vector3f(1, 1, 0), new Vector2f(1, 1)));
+		vertices.add(new Vertex(new Vector3f(-1, 1, 0), new Vector2f(0, 1)));
+		ArrayList<Integer> indices = new ArrayList<>();
+		indices.add(0);
+		indices.add(1);
+		indices.add(2);
+		indices.add(2);
+		indices.add(3);
+		indices.add(0);
+		return engine.getRenderingBackend().createGeometry(vertices, indices);
+	}
+	
 	public static Geometry newQuad() {
 		ArrayList<Vertex> vertices = new ArrayList<>();
 		vertices.add(new Vertex(new Vector3f(0, 0, 0), new Vector2f(0, 0)));
@@ -120,6 +137,14 @@ public class Assets {
 		if (path.endsWith(".ogg") || path.endsWith(".ogx"))
 			return AudioFormat.VORBIS;
 		return null;
+	}
+	
+	public static Soundtrack newSoundtrack(String path, AudioFormat format) {
+		return new Soundtrack(engine.getResource("sounds/" + path), engine, format);
+	}
+
+	public static Framebuffer newFullscreenFramebuffer(int colorAttachments, boolean hasDepthBuffer) {
+		return engine.getRenderingBackend().createFramebuffer(engine.getSettings().width, engine.getSettings().height, colorAttachments, hasDepthBuffer);
 	}
 
 }

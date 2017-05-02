@@ -1,5 +1,7 @@
 package engine;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import com.esotericsoftware.minlog.Log;
@@ -73,6 +75,13 @@ public class Engine {
 		InputStream classResource = getClass().getClassLoader().getResourceAsStream(path);
 		if (classResource != null)
 			return classResource;
+		String filePath = "res/" + path;
+		try {
+			FileInputStream fileResource = new FileInputStream(filePath);
+			return fileResource;
+		} catch (FileNotFoundException e) {
+			// File not found
+		}
 		Log.warn("Cannot locate resource: " + path);
 		return null;
 	}

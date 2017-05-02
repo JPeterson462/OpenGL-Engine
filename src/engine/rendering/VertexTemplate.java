@@ -10,7 +10,9 @@ public enum VertexTemplate {
 	
 	POSITION_TEXCOORD_NORMAL, 
 	
-	POSITION_TEXCOORD_NORMAL_TANGENT;
+	POSITION_TEXCOORD_NORMAL_TANGENT,
+	
+	POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT;
 	
 	public boolean hasPosition() {
 		return ordinal() >= POSITION.ordinal();

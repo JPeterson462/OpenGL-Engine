@@ -43,7 +43,7 @@ public class ALAudioBackend implements AudioBackend {
 	
 	private FloatBuffer sourcePosition = BufferUtils.createFloatBuffer(3);
 	
-	private boolean loopingMusic = true;
+	private boolean loopingMusic = false;
 	
 	private void checkError() {
 		int error = AL10.alGetError();
@@ -143,6 +143,10 @@ public class ALAudioBackend implements AudioBackend {
 		}
 		AL10.alSourceQueueBuffers(alMusic.getSource(), buffers);
 		AL10.alSourcePlay(alMusic.getSource());
+	}
+	
+	public boolean isBackgroundMusicDonePlaying() {
+		return backgroundMusic == null || backgroundMusic.isDonePlaying();
 	}
 	
 	private boolean stream(int buffer, AudioStream stream) {

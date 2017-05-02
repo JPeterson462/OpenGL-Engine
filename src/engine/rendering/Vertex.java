@@ -2,6 +2,7 @@ package engine.rendering;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.joml.Vector4f;
 
 public class Vertex {
@@ -15,6 +16,10 @@ public class Vertex {
 	private Vector3f tangent;
 	
 	private Vector4f color;
+	
+	private Vector3i jointIDs;
+	
+	private Vector3f weights;
 	
 	private VertexTemplate template;
 
@@ -50,6 +55,15 @@ public class Vertex {
 		this.color = color;
 		template = VertexTemplate.POSITION_TEXCOORD_COLOR;
 	}
+	
+	public Vertex(Vector3f position, Vector2f textureCoord, Vector3f normal, Vector3i jointIDs, Vector3f weights) {
+		this.position = position;
+		this.textureCoord = textureCoord;
+		this.normal = normal;
+		this.jointIDs = jointIDs;
+		this.weights = weights;
+		template = VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT;
+	}
 
 	public Vector3f getPosition() {
 		return position;
@@ -69,6 +83,14 @@ public class Vertex {
 	
 	public Vector4f getColor() {
 		return color;
+	}
+	
+	public Vector3i getJointIDs() {
+		return jointIDs;
+	}
+	
+	public Vector3f getWeights() {
+		return weights;
 	}
 	
 	public VertexTemplate getTemplate() {

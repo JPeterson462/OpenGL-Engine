@@ -1,7 +1,6 @@
 package backends.opengl;
 
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -13,8 +12,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
@@ -108,6 +106,10 @@ public class GLRenderingBackend implements RenderingBackend {
 		GLFW.glfwDefaultWindowHints();
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, settings.resizable ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+		if (settings.multisample) {
+			GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 8);
+			GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, 24);
+		}
 		GLFWVidMode monitorSize = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 		if (settings.fullscreen && settings.nativeResolution) {
 			window = GLFW.glfwCreateWindow(monitorSize.width(), monitorSize.height(), settings.title, settings.fullscreen ? GLFW.glfwGetPrimaryMonitor() : MemoryUtil.NULL, MemoryUtil.NULL);
@@ -203,6 +205,7 @@ public class GLRenderingBackend implements RenderingBackend {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+		GL11.glEnable(GL13.GL_MULTISAMPLE);
 //		GL11.glEnable(GL11.GL_CULL_FACE);
 //		GL11.glCullFace(GL11.GL_BACK);
 		GL11.glClearColor(settings.backgroundColor.x, settings.backgroundColor.y, settings.backgroundColor.z, 0);
@@ -394,13 +397,7 @@ public class GLRenderingBackend implements RenderingBackend {
 			checkError();
 			return new Framebuffer(glFbo, new Renderbuffer(new GLRenderbuffer(renderbuffer, memory)), colorAttachmentTextures);
 		} else {
-			int texture = GL11.glGenTextures();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (ByteBuffer) null);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+			int texture = GLTextureBuilder.createEmptyDepthTexture(width, height);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			GL32.glFramebufferTexture(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, texture, 0);
 			glFbo.checkStatus();

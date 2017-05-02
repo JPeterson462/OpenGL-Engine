@@ -1,11 +1,11 @@
 package engine.gui;
 
-import org.joml.Matrix4f;
-
 import engine.Assets;
+import engine.Engine;
 import engine.rendering.Geometry;
-import engine.rendering.Shader;
 import engine.rendering.Texture;
+import engine.rendering.passes.DefaultGUIRenderer;
+import engine.rendering.passes.WidgetRenderer;
 
 public class Image extends Widget {
 
@@ -15,18 +15,14 @@ public class Image extends Widget {
 	
 	private String path;
 	
-	private Matrix4f modelMatrix;
-	
 	public Image(String name, String path) {
 		super(name);
 		this.path = path;
-		modelMatrix = new Matrix4f();
 	}
 	
 	public Image(String name, Texture texture) {
 		super(name);
 		this.texture = texture;
-		modelMatrix = new Matrix4f();
 	}
 
 	@Override
@@ -38,14 +34,17 @@ public class Image extends Widget {
 	}
 
 	@Override
-	public void render(Shader shader) {
-		modelMatrix.translationRotateScale(getPosition().x, getPosition().y, 0, 0, 0, 0, 1, getSize().x, getSize().y, 1);
-		shader.uploadMatrix("modelMatrix", modelMatrix);
+	public void render(Engine engine) {
 		geometry.bind();
 		texture.bind(0);
 		geometry.renderGeometry();
 		texture.unbind();
 		geometry.unbind();
+	}
+
+	@Override
+	public Class<? extends WidgetRenderer> getRenderer() {
+		return DefaultGUIRenderer.class;
 	}
 
 }

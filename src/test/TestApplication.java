@@ -5,22 +5,36 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.xml.sax.SAXException;
+
+import collada.XMLParser;
 import engine.Assets;
 import engine.Engine;
 import engine.Entity;
 import engine.FirstPersonCamera;
 import engine.RawImage;
 import engine.Settings;
+import engine.animation.AnimatedModel;
+import engine.animation.AnimatedModelImporter;
+import engine.animation.Animation;
+import engine.animation.AnimationImporter;
+import engine.audio.AudioFormat;
 import engine.audio.Music;
 import engine.audio.SoundEffect;
+import engine.audio.Soundtrack;
+import engine.gui.Container;
 import engine.gui.GUI;
 import engine.gui.Image;
+import engine.gui.Label;
 import engine.input.FirstPersonCameraController;
 import engine.input.Key;
 import engine.input.KeyboardListener;
@@ -36,14 +50,18 @@ import engine.rendering.Light;
 import engine.rendering.Material;
 import engine.rendering.Shader;
 import engine.rendering.VertexTemplate;
+import engine.rendering.passes.AnimatedModelRenderer;
+import engine.rendering.passes.DefaultGUIRenderer;
 import engine.rendering.passes.GUIRenderer;
 import engine.rendering.passes.ParticleRenderer;
+import engine.rendering.passes.PostProcessingRenderer;
 import engine.rendering.passes.SceneRenderer;
 import engine.rendering.passes.ShadowRenderer;
 import engine.rendering.passes.SkyboxRenderer;
 import engine.rendering.passes.TerrainRenderer;
 import engine.rendering.passes.TextRenderer;
 import engine.rendering.passes.WaterRenderer;
+import engine.rendering.passes.WidgetRenderer;
 import engine.terrain.HeightmapTerrainGenerator;
 import engine.terrain.ProceduralTerrainGenerator;
 import engine.terrain.Terrain;
@@ -52,8 +70,6 @@ import engine.terrain.TerrainTile;
 import engine.terrain.TerrainTexturePack;
 import engine.text.Font;
 import engine.text.FontImporter;
-import engine.text.TextBuffer;
-import engine.text.TextEffect;
 import engine.water.Water;
 import engine.water.WaterTile;
 import utils.Screenshot;
@@ -93,6 +109,8 @@ public class TestApplication {
 	
 	private static SoundEffect effect;
 	
+	private static Soundtrack soundtrack;
+	
 	private static long seed = 0;//System.currentTimeMillis();
 
 	private static TerrainGenerator newGenerator(int x, int z) {
@@ -100,7 +118,8 @@ public class TestApplication {
 		return new HeightmapTerrainGenerator(heightmap, 40, 0, x, z);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
+		System.out.println(XMLParser.loadXML(TestApplication.class.getClassLoader().getResourceAsStream("models/model.dae")));
 		WaterRenderer.WATER_HEIGHT = 20;//TEST
 		Settings settings = new Settings(new FileInputStream("settings.cfg"));
 		settings.write(new FileOutputStream("settings.cfg"));
@@ -114,10 +133,11 @@ public class TestApplication {
 //				heightmap = new RawImage(engine.getResource("textures/heightmap1.jpg"));
 
 				Assets.attachTo(e);
+				
+				soundtrack = Assets.newSoundtrack("AvengedSevenfold.zip", AudioFormat.VORBIS);
+				
 				font = FontImporter.loadFont("Consolas.fnt", e);
-//				TextBuffer buf0 = new TextBuffer("Hello World", new Vector2f(50, 50), new Vector2f(200, 100), new Vector4f(0, 0, 0, 1), 18, font, e, 12);
 				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR), e.getSettings().width, e.getSettings().height);
-//				textRenderer.addText(buf0);
 
 				particleRenderer = new ParticleRenderer(Assets.newInstancedShader("fragmentParticle.glsl", "vertexParticle.glsl", 
 						new int[] { 0, 1, 5, 6 }, new String[] { "in_Position", "modelViewMatrix", "textureAtlasOffset", "blendFactor" }), camera, e);
@@ -162,27 +182,52 @@ public class TestApplication {
 				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"), 
 						Assets.newTexture("waterNormal.png"), sun);
 				
-				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION), e, camera);
+				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
 				
-				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
-				i1.getPosition().set(0, 0);
-				i1.getSize().set(640, 360);
+//				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
+//				i1.getPosition().set(0, 0);
+//				i1.getSize().set(640, 360);
 				
-				GUI gui = new GUI();
+				HashMap<Class<?>, WidgetRenderer> renderers = new HashMap<>();
+				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("fragmentGui.glsl", "vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
+				renderers.put(TextRenderer.class, textRenderer);
+				
+				Container container = new Container("container0");			
+				container.getPosition().set(100, 0);
+				container.getSize().set(500, 500);
+				
 				Image i0 = new Image("id0", "google_logo.png");
-				i0.getPosition().set(100, 100);
+				i0.getPosition().set(0, 100);
 				i0.getSize().set(200, 70);
-				gui.getWidgets().add(i0);
-				gui.getWidgets().add(i1);
-				guiRenderer = new GUIRenderer(gui, Assets.newShader("fragmentGui.glsl", "vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD), 1280, 720);
+				container.addWidget(i0);
+				
+//				Label l0 = new Label("id1", font, "Hello World", new Vector4f(1, 1, 0, 1), 24, new Vector2f(200, 70));
+//				container.addWidget(l0);
+				
+				container.layout();
+				
+				GUI gui = new GUI(container);
+				guiRenderer = new GUIRenderer(gui, renderers, 1280, 720);
+				
+				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
+				
+				AnimatedModelRenderer animatedModelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer);
+						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing, animatedModelRenderer);
 				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
 				//				sceneRenderer.addLight(new Light(new Vector3f(293, 7, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(10, 10, 10), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
+//				sceneRenderer.addEntity(entity);
+				
+				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
+				AnimatedModel animatedModel = AnimatedModelImporter.loadAnimatedModel("model.dae", e, Assets.newTexture("animatedDiffuse.png"));
+				animatedModel.doAnimation(animation);
+				Entity entity = new Entity(animatedModel);
+				entity.setPosition(new Vector3f(30, 30, 30));
+				entity.setScale(10);
 				sceneRenderer.addEntity(entity);
 
 				Model lamp = Assets.newModel("lamp.obj", false);
@@ -195,18 +240,18 @@ public class TestApplication {
 				Entity lamp3 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
 				lamp3.setPosition(new Vector3f(293, terrain.getHeightAt(293, -305), -305));
 
-				Model crate = Assets.newModel("crate.obj", true);
-				Material crateMaterial = Assets.newMaterial("crate.png", "crateNormal.png");
-				crateMaterial.setReflectivity(0.5f);
-				crateMaterial.setShineDamper(10);
-				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices());
+//				Model crate = Assets.newModel("crate.obj", true);
+//				Material crateMaterial = Assets.newMaterial("crate.png", "crateNormal.png");
+//				crateMaterial.setReflectivity(0.5f);
+//				crateMaterial.setShineDamper(10);
+//				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices());
 
 				sceneRenderer.addEntity(lamp1);
 				sceneRenderer.addEntity(lamp2);
 				sceneRenderer.addEntity(lamp3);
-				Entity crateEntity = new Entity(crate, crateMaterial, crateGeometry, 1, 1, 0, 0);
-				crateEntity.setScale(0.1f);
-				sceneRenderer.addEntity(crateEntity);
+//				Entity crateEntity = new Entity(crate, crateMaterial, crateGeometry, 1, 1, 0, 0);
+//				crateEntity.setScale(0.1f);
+//				sceneRenderer.addEntity(crateEntity);
 
 				Model tree = Assets.newModel("tree.obj", true);
 				Material treeMaterial = Assets.newMaterial("tree.png");
@@ -214,7 +259,7 @@ public class TestApplication {
 				
 				Random random = new Random();
 				for (int i = 0; i < 600; i++) {
-					Entity entity = new Entity(fern, fernMaterial, fernGeometry, 2, 2, nextInt(random), nextInt(random));					
+					entity = new Entity(fern, fernMaterial, fernGeometry, 2, 2, nextInt(random), nextInt(random));					
 					entity.setPosition(new Vector3f(nextCoordinate(random), 0, nextCoordinate(random)));
 					entity.getPosition().y = terrain.getHeightAt(entity.getPosition().x, entity.getPosition().z);
 					entity.setScale(0.6f);
@@ -279,13 +324,14 @@ public class TestApplication {
 			if (nowFPS > 0) {
 				delta = 1f / nowFPS;
 			}
+//			soundtrack.update(e);
 			//			universe.update(delta);
 			controller.update(delta, terrain);
 			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, engine);
 //			particleRenderer.update(delta);
 //			particleRenderer.render(e);
 			guiRenderer.render(e);
-			textRenderer.render(e);
+//			textRenderer.render(e);
 		});
 		engine.run();
 	}

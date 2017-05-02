@@ -91,5 +91,4 @@ public class OBJVertex {
 		this.duplicateVertex = duplicateVertex;
 	}
 
-
 }

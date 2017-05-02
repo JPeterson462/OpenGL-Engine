@@ -1,17 +1,15 @@
 package engine.gui;
 
-import java.util.ArrayList;
-
 public class GUI {
 	
-	private ArrayList<Widget> widgets;
+	private Container container;
 	
-	public GUI() {
-		widgets = new ArrayList<>();
-	}
-	
-	public ArrayList<Widget> getWidgets() {
-		return widgets;
+	public GUI(Container container) {
+		this.container = container;
 	}
 
+	public Container getContainer() {
+		return container;
+	}
+	
 }

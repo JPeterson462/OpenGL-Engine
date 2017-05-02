@@ -53,14 +53,18 @@
 4-30-17:
 	Followed ThinMatrix water tutorials
 	Water most rendered (except for soft edges)
-	Started shadow rendering (depth buffer isn't written)
+	Started shadow rendering
+5-1-17:
+	Followed ThinMatrix tutorials
+	Shadows now render
+	Percentage closer filtering for shadows
+	Anisotropic filtering and antialiasing
+	Added Soundtracks (Music packed in ZIPs)
+	Better widget framework
+	Started skeletal animation (still really broken)
 	
 Remaining Tutorials:
 	General:
-		- Shadow Mapping
-		- Percentage Closer Filtering
-		- Antialiasing and Anisotropic Filtering
-		- Exporting a LWJGL Game
 		- Post-Processing Effects
 		- Gaussian Blur
 		- Multisampled FBOs
@@ -71,10 +75,21 @@ Remaining Tutorials:
 		- Cube Map Reflections
 		- Render to Cube Map Texture
 	Skeletal:
-		- Skeletal Animation (3)
 		- Reading Collada Animation Files
 
+https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
+
 - Fix particle rendering
+- Shadows to other entities
+- Soft shadows (Shadows distorted depending on rotation towards shadow)
+- Music on its own thread?
+- Label Widget not rendering
+- Fix PostProcessingRenderer (doesn't render to FBO, just straight to screen)
+- Lighting animated models
+- Optimize animated models
+- Normal Mapped animated models
+- SkeletonLoader -> send id data (as opposed to Armature)
+- Clean up access to Assets.getEngine()
 
 Terrain:
 - navmesh for traveling on terrain
@@ -117,4 +132,5 @@ Other:
 - mouse picker usage: improved first person camera controls?
 - fix first person camera controller rotation and movement
 
-Start at OpenGL Tutorial 38
+Start at OpenGL Skeletal Animation Tutorial 3
+Start at OpenGL Tutorial 43

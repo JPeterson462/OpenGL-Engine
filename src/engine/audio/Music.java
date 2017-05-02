@@ -38,5 +38,9 @@ public class Music {
 	public AudioStream getAudioStream() {
 		return audioStream;
 	}
+	
+	public boolean isDonePlaying() {
+		return played == length;
+	}
 
 }

@@ -15,7 +15,7 @@ public class ShadowBox {
 	
 	private static final Vector4f FORWARD = new Vector4f(0, 0, -1, 0);
 	
-	private static final float SHADOW_DISTANCE = 150;
+	public static final float SHADOW_DISTANCE = 150;
 	
 	private float minX, maxX;
 	
@@ -32,7 +32,7 @@ public class ShadowBox {
 	public ShadowBox(Matrix4f lightViewMatrix, Camera camera, float nearPlane, float fov, float aspectRatio) {
 		this.lightViewMatrix = lightViewMatrix;
 		this.camera = camera;
-		calculateWidthsAndHeights(farHeight, farHeight, farHeight);
+		calculateWidthsAndHeights(nearPlane, fov, aspectRatio);
 	}
 	
 	private Vector4f forwardVector4f = new Vector4f();

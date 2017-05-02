@@ -53,6 +53,7 @@ public class TextBuffer {
 		geometry = engine.getRenderingBackend().createGeometry(vertices, indices);
 		viewMatrix = new Matrix4f();
 		viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, 1, 1, 1);	
+		this.maxLetters = maxLetters;
 	}
 	
 	public Vector2f getPosition() {
@@ -82,7 +83,7 @@ public class TextBuffer {
 		if (text.length() > 0) {
 			TextBufferBuilder.buildText(text, size, color, font, fontSize, vertices, indices);
 			engine.getRenderingBackend().updateGeometry(geometry, vertices, indices);
-			viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, 1, 1, 1);	
+			viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, size.x, size.y, 1);	
 		}
 	}
 	

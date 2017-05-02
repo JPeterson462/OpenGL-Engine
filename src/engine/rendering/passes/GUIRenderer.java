@@ -1,28 +1,27 @@
 package engine.rendering.passes;
 
+import java.util.HashMap;
+
 import engine.Camera;
 import engine.Engine;
 import engine.OrthographicCamera;
 import engine.gui.GUI;
-import engine.gui.Widget;
-import engine.rendering.Shader;
 
 public class GUIRenderer {
 	
 	private GUI gui;
 	
-	private Shader shader;
-	
 	private Camera camera;
 	
-	public GUIRenderer(GUI gui, Shader shader, float width, float height) {
+	private HashMap<Class<?>, WidgetRenderer> renderers = new HashMap<>();
+	
+	public GUIRenderer(GUI gui, HashMap<Class<?>, WidgetRenderer> renderers, float width, float height) {
 		this.gui = gui;
-		this.shader = shader;
-		for (int i = 0; i < gui.getWidgets().size(); i++) {
-			Widget widget = gui.getWidgets().get(i);
-			widget.initialize();
-		}
+		this.renderers = renderers;
+		gui.getContainer().tryInitialize();
+		gui.getContainer().connectLookup(widget -> this.renderers.get(widget.getRenderer()));
 		camera = new OrthographicCamera(width, height);
+		gui.getContainer().connectCamera(camera);
 	}
 	
 	public Camera getCamera() {
@@ -30,15 +29,9 @@ public class GUIRenderer {
 	}
 	
 	public void render(Engine engine) {
+		gui.getContainer().tryInitialize();
 		camera.update();
-		engine.getRenderingBackend().setDepth(false);
-		shader.bind();
-		camera.uploadTo(shader);
-		for (int i = 0; i < gui.getWidgets().size(); i++) {
-			Widget widget = gui.getWidgets().get(i);
-			widget.render(shader);
-		}
-		shader.unbind();
+		gui.getContainer().render(engine);
 		engine.getRenderingBackend().setDepth(true);
 	}
 

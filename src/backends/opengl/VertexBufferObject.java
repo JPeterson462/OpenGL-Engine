@@ -52,7 +52,7 @@ public class VertexBufferObject {
 			if (!uploaded)
 				GL15.glBufferData(target, (IntBuffer) data, isStatic ? GL15.GL_STATIC_DRAW : GL15.GL_DYNAMIC_DRAW);
 			else
-				GL15.glBufferSubData(target, 0, (ShortBuffer) data);
+				GL15.glBufferSubData(target, 0, (IntBuffer) data);
 			type = Integer.class;
 			uploaded = true;
 		}
@@ -64,9 +64,9 @@ public class VertexBufferObject {
 		if (type.equals(Float.class))
 			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_FLOAT, false, elements << 2, 0);
 		else if (type.equals(Short.class))
-			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_FLOAT, false, elements << 1, 0);
+			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_UNSIGNED_SHORT, false, elements << 1, 0);
 		else if (type.equals(Integer.class))
-			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_FLOAT, false, elements << 2, 0);
+			GL20.glVertexAttribPointer(attribute, elements, GL11.GL_UNSIGNED_INT, false, elements << 2, 0);
 		else
 			Log.warn("Unknown buffer type: " + type.getName());
 	}

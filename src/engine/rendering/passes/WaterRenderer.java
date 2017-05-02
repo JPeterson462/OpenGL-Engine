@@ -81,7 +81,7 @@ public class WaterRenderer {
 			moveFactor -= 1;
 		}
 		float waterHeight = WATER_HEIGHT;
-		float softEdgeFix = 0.5f;
+		float softEdgeFix = 0f;
 		float distanceFromWater = camera.getCenter().y - waterHeight;
 		camera.getCenter().y -= 2 * distanceFromWater;
 		camera.setPitch(-camera.getPitch());

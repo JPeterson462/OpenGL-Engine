@@ -8,6 +8,7 @@ import engine.Camera;
 import engine.rendering.Light;
 import engine.rendering.Shader;
 import engine.rendering.Texture;
+import engine.shadows.ShadowBox;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainTile;
 
@@ -47,6 +48,8 @@ public class TerrainRenderer {
 				shader.uploadVector("attenuation[" + i + "]", new Vector3f(1, 0, 0));
 			}
 		}
+		shader.uploadFloat("shadowDistance", ShadowBox.SHADOW_DISTANCE);
+		shader.uploadFloat("shadowMapSize", shadowDepthMap.getWidth());
 		shader.uploadMatrix("toShadowMapSpace", shadowMapMatrix);
 		shadowDepthMap.bind(5);
 		shader.uploadVector("skyColor", skyColor);
