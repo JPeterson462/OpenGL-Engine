@@ -3,9 +3,8 @@ package collada;
 import java.nio.FloatBuffer;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
 import collada.data.AnimationData;
 import collada.data.JointTransformData;
@@ -14,14 +13,15 @@ import utils.XMLNode;
 
 public class AnimationLoader {
 	
-	private static final Matrix4f CORRECTION = new Matrix4f().rotate((float) Math.toRadians(-90), new Vector3f(1, 0, 0));
-	
 	private XMLNode animationData;
 	private XMLNode jointHierarchy;
 	
-	public AnimationLoader(XMLNode animationData, XMLNode jointHierarchy) {
+	private String animation;
+	
+	public AnimationLoader(XMLNode animationData, XMLNode jointHierarchy, String animation) {
 		this.animationData = animationData;
 		this.jointHierarchy = jointHierarchy;
+		this.animation = animation;
 	}
 	
 	public AnimationData extractAnimation() {
@@ -83,19 +83,18 @@ public class AnimationLoader {
 			buffer.clear();
 			buffer.put(matrixData);
 			buffer.flip();
-			Matrix4f transform = new Matrix4f();
-			transform.load(buffer);
+			Matrix4f transform = new Matrix4f(buffer);
 			transform.transpose();
 			if (root) {
 				//because up axis in Blender is different to up axis in game
-				Matrix4f.mul(CORRECTION, transform, transform);
+				ColladaUtils.correct(transform);
 			}
 			keyFrames[i].addJointTransform(new JointTransformData(jointName, transform));
 		}
 	}
 	
 	private String findRootJointName() {
-		XMLNode skeleton = jointHierarchy.getChild("visual_scene").getChildWithAttribute("node", "id", "Armature");
+		XMLNode skeleton = jointHierarchy.getChild("visual_scene").getChildWithAttribute("node", "id", animation);
 		return skeleton.getChild("node").getAttribute("id");
 	}
 

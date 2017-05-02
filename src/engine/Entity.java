@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import engine.animation.AnimatedModel;
 import engine.models.Model;
 import engine.models.ModelImporter;
 import engine.rendering.Geometry;
@@ -19,6 +20,8 @@ public class Entity {
 	private float scale = 1;
 	
 	private Model model;
+	
+	private AnimatedModel animatedModel;
 	
 	private Material material;
 	
@@ -52,6 +55,10 @@ public class Entity {
 		this.atlasY = atlasY;
 	}
 	
+	public Entity(AnimatedModel animatedModel) {
+		this.animatedModel = animatedModel;
+	}
+	
 	public void setTransparency(boolean hasTransparency) {
 		transparency = hasTransparency;
 	}
@@ -83,9 +90,17 @@ public class Entity {
 	public void setScale(float scale) {
 		this.scale = scale;
 	}
+	
+	public boolean isAnimated() {
+		return animatedModel != null;
+	}
 
 	public Model getModel() {
 		return model;
+	}
+	
+	public AnimatedModel getAnimatedModel() {
+		return animatedModel;
 	}
 	
 	public Material getMaterial() {

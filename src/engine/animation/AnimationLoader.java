@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import collada.ColladaLoader;
 import collada.data.AnimationData;
@@ -31,7 +31,7 @@ public class AnimationLoader {
 	 * @return The animation made from the data in the file.
 	 */
 	public static Animation loadAnimation(InputStream colladaFile) {
-		AnimationData animationData = ColladaLoader.loadColladaAnimation(colladaFile);
+		AnimationData animationData = ColladaLoader.loadColladaAnimation(colladaFile, "Armature");
 		KeyFrame[] frames = new KeyFrame[animationData.keyFrames.length];
 		for (int i = 0; i < frames.length; i++) {
 			frames[i] = createKeyFrame(animationData.keyFrames[i]);
@@ -65,7 +65,7 @@ public class AnimationLoader {
 	 */
 	private static JointTransform createTransform(JointTransformData data) {
 		Matrix4f mat = data.jointLocalTransform;
-		Vector3f translation = new Vector3f(mat.m30, mat.m31, mat.m32);
+		Vector3f translation = new Vector3f(mat.m30(), mat.m31(), mat.m32());
 		Quaternion rotation = Quaternion.fromMatrix(mat);
 		return new JointTransform(translation, rotation);
 	}

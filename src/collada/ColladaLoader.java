@@ -12,13 +12,13 @@ import utils.XMLParser;
 
 public class ColladaLoader {
 
-	public static AnimatedModelData loadColladaModel(InputStream colladaFile, int maxWeights) {
+	public static AnimatedModelData loadColladaModel(InputStream colladaFile, int maxWeights, String animation) {
 		XMLNode node = XMLParser.loadXmlFile(colladaFile);
 
 		SkinLoader skinLoader = new SkinLoader(node.getChild("library_controllers"), maxWeights);
 		SkinningData skinningData = skinLoader.extractSkinData();
 
-		SkeletonLoader jointsLoader = new SkeletonLoader(node.getChild("library_visual_scenes"), skinningData.jointOrder);
+		SkeletonLoader jointsLoader = new SkeletonLoader(node.getChild("library_visual_scenes"), skinningData.jointOrder, animation);
 		SkeletonData jointsData = jointsLoader.extractBoneData();
 
 		GeometryLoader g = new GeometryLoader(node.getChild("library_geometries"), skinningData.verticesSkinData);
@@ -27,11 +27,11 @@ public class ColladaLoader {
 		return new AnimatedModelData(meshData, jointsData);
 	}
 
-	public static AnimationData loadColladaAnimation(InputStream colladaFile) {
+	public static AnimationData loadColladaAnimation(InputStream colladaFile, String animation) {
 		XMLNode node = XMLParser.loadXmlFile(colladaFile);
 		XMLNode animNode = node.getChild("library_animations");
 		XMLNode jointsNode = node.getChild("library_visual_scenes");
-		AnimationLoader loader = new AnimationLoader(animNode, jointsNode);
+		AnimationLoader loader = new AnimationLoader(animNode, jointsNode, animation);
 		AnimationData animData = loader.extractAnimation();
 		return animData;
 	}

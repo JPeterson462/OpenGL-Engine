@@ -3,7 +3,7 @@ package engine.animation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 /**
  * 
@@ -131,8 +131,9 @@ public class Joint {
 	 *            - the model-space bind transform of the parent joint.
 	 */
 	protected void calcInverseBindTransform(Matrix4f parentBindTransform) {
-		Matrix4f bindTransform = Matrix4f.mul(parentBindTransform, localBindTransform, null);
-		Matrix4f.invert(bindTransform, inverseBindTransform);
+		Matrix4f bindTransform = new Matrix4f();
+		parentBindTransform.mul(localBindTransform, bindTransform);
+		bindTransform.invert(inverseBindTransform);
 		for (Joint child : children) {
 			child.calcInverseBindTransform(bindTransform);
 		}

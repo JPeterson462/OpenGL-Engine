@@ -3,7 +3,7 @@ package collada.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 /**
  * Contains the extracted data for a single joint in the model. This stores the

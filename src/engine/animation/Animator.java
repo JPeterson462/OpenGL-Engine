@@ -3,7 +3,7 @@ package engine.animation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 /**
  * 
@@ -142,11 +142,12 @@ public class Animator {
 	 */
 	private void applyPoseToJoints(Map<String, Matrix4f> currentPose, Joint joint, Matrix4f parentTransform) {
 		Matrix4f currentLocalTransform = currentPose.get(joint.name);
-		Matrix4f currentTransform = Matrix4f.mul(parentTransform, currentLocalTransform, null);
+		Matrix4f currentTransform = new Matrix4f();
+		parentTransform.mul(currentLocalTransform, currentTransform);
 		for (Joint childJoint : joint.children) {
 			applyPoseToJoints(currentPose, childJoint, currentTransform);
 		}
-		Matrix4f.mul(currentTransform, joint.getInverseBindTransform(), currentTransform);
+		currentTransform.mul(joint.getInverseBindTransform(), currentTransform);
 		joint.setAnimationTransform(currentTransform);
 	}
 

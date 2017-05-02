@@ -1,13 +1,12 @@
 package engine.rendering.passes;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import engine.Camera;
 import engine.Engine;
-import engine.animation.AnimatedModel;
+import engine.Entity;
 import engine.rendering.Shader;
 
 /**
@@ -22,8 +21,6 @@ import engine.rendering.Shader;
 public class AnimatedModelRenderer {
 
 	private Shader shader;
-	
-	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 	
 	/**
 	 * Initializes the shader program used for rendering animated models.
@@ -47,28 +44,27 @@ public class AnimatedModelRenderer {
 	 * @param lightDir
 	 *            - the direction of the light in the scene.
 	 */
-	public void render(AnimatedModel entity, Camera camera, Vector3f lightDir, Engine engine) {
+	public void render(Entity entity, Camera camera, Vector3f lightDir, Engine engine, Vector4f plane) {
 		engine.getRenderingBackend().setBlending(false);
 		engine.getRenderingBackend().setDepth(true);
 		prepare(camera, lightDir);
-		entity.getTexture().bind(0);
-		entity.getModel().bind();
-		org.lwjgl.util.vector.Matrix4f[] jointTransforms = entity.getJointTransforms();
+		shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+		shader.uploadVector("plane", plane);
+		entity.getAnimatedModel().getTexture().bind(0);
+		entity.getAnimatedModel().getModel().bind();
+		Matrix4f[] jointTransforms = entity.getAnimatedModel().getJointTransforms();
 		for (int i = 0; i < jointTransforms.length; i++) {
 			uploadMatrix(i, jointTransforms[i]);
 		}
-		entity.getModel().renderGeometry();
-		entity.getModel().unbind();
+		entity.getAnimatedModel().getModel().renderGeometry();
+		entity.getAnimatedModel().getModel().unbind();
 		finish();
 		engine.getRenderingBackend().setBlending(true);
 		engine.getRenderingBackend().setAdditiveBlending(false);
 	}
 	
-	private void uploadMatrix(int i, org.lwjgl.util.vector.Matrix4f matrix) {
-		matrixBuffer.rewind();
-		matrix.store(matrixBuffer);
-		matrixBuffer.flip();
-		shader.uploadMatrix("jointTransforms[" + i + "]", matrixBuffer);
+	private void uploadMatrix(int i, Matrix4f matrix) {
+		shader.uploadMatrix("jointTransforms[" + i + "]", matrix);
 	}
 
 	/**
@@ -84,7 +80,7 @@ public class AnimatedModelRenderer {
 	private void prepare(Camera camera, Vector3f lightDir) {
 		shader.bind();
 		shader.uploadMatrix("projectionViewMatrix", camera.getProjectionViewMatrix());
-		shader.uploadVector("lightDirection", new org.joml.Vector3f(lightDir.x, lightDir.y, lightDir.z));
+		shader.uploadVector("lightDirection", lightDir);
 	}
 
 	/**

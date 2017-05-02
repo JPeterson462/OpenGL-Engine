@@ -29,7 +29,7 @@ public class AnimatedModelLoader {
 	 * @return The animated entity (no animation applied though)
 	 */
 	public static AnimatedModel loadEntity(InputStream modelFile, InputStream textureFile) {
-		AnimatedModelData entityData = ColladaLoader.loadColladaModel(modelFile, AnimatedModel.MAX_WEIGHTS);
+		AnimatedModelData entityData = ColladaLoader.loadColladaModel(modelFile, AnimatedModel.MAX_WEIGHTS, "Armature");
 		Geometry model = createGeometry(entityData.getMeshData());
 		Texture texture = loadTexture(textureFile);
 		SkeletonData skeletonData = entityData.getJointsData();

@@ -27,9 +27,9 @@ public class Engine {
 	
 	private int frames;
 	
-	private float totalFrames = 0;
+//	private float totalFrames = 0;
 	
-	private int cycles = 0;
+//	private int cycles = 0;
 	
 	private int lastFPS = 0;
 	
@@ -119,8 +119,8 @@ public class Engine {
 			audioBackend.updateContext();
 			if (System.currentTimeMillis() - lastSecond > 1000) {
 				lastSecond = System.currentTimeMillis();
-				totalFrames += frames;
-				cycles++;
+//				totalFrames += frames;
+//				cycles++;
 				lastFPS = frames;
 				frames = 0;
 			}

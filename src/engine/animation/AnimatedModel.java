@@ -1,6 +1,6 @@
 package engine.animation;
 
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 import engine.rendering.Geometry;
 import engine.rendering.Texture;

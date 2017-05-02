@@ -3,10 +3,9 @@ package collada;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import collada.data.MeshData;
 import collada.data.Vertex;
@@ -20,8 +19,6 @@ import utils.XMLNode;
  */
 public class GeometryLoader {
 
-	private static final Matrix4f CORRECTION = new Matrix4f().rotate((float) Math.toRadians(-90), new Vector3f(1, 0,0));
-	
 	private final XMLNode meshData;
 
 	private final List<VertexSkinData> vertexWeights;
@@ -69,7 +66,7 @@ public class GeometryLoader {
 			float y = Float.parseFloat(posData[i * 3 + 1]);
 			float z = Float.parseFloat(posData[i * 3 + 2]);
 			Vector4f position = new Vector4f(x, y, z, 1);
-			Matrix4f.transform(CORRECTION, position, position);
+			ColladaUtils.correct(position);
 			vertices.add(new Vertex(vertices.size(), new Vector3f(position.x, position.y, position.z), vertexWeights.get(vertices.size())));
 		}
 	}
@@ -85,7 +82,7 @@ public class GeometryLoader {
 			float y = Float.parseFloat(normData[i * 3 + 1]);
 			float z = Float.parseFloat(normData[i * 3 + 2]);
 			Vector4f norm = new Vector4f(x, y, z, 0f);
-			Matrix4f.transform(CORRECTION, norm, norm);
+			ColladaUtils.correct(norm);
 			normals.add(new Vector3f(norm.x, norm.y, norm.z));
 		}
 	}

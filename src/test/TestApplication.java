@@ -14,7 +14,6 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.util.vector.Matrix4f;
 import org.xml.sax.SAXException;
 
 import engine.Assets;
@@ -223,7 +222,7 @@ public class TestApplication {
 				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing);
+						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
 				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
@@ -238,6 +237,10 @@ public class TestApplication {
 //				entity.setPosition(new Vector3f(30, 30, 30));
 //				entity.setScale(10);
 //				sceneRenderer.addEntity(entity);
+				
+				Entity ae = new Entity(animatedModel);
+				ae.setPosition(new Vector3f(45, 35, 45));
+				sceneRenderer.addEntity(ae);
 
 				Model lamp = Assets.newModel("lamp.obj", false);
 				Material lampMaterial = Assets.newMaterial("lamp.png");
@@ -337,9 +340,6 @@ public class TestApplication {
 			//			universe.update(delta);
 			controller.update(delta, terrain);
 			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, e);
-			
-			animatedModel.update(delta);
-			modelRenderer.render(animatedModel, camera, new org.lwjgl.util.vector.Vector3f(0.2f, -0.3f, -0.8f), e);
 			
 //			particleRenderer.update(delta);
 //			particleRenderer.render(e);

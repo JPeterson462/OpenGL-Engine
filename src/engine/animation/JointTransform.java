@@ -1,7 +1,7 @@
 package engine.animation;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class JointTransform {
 	protected Matrix4f getLocalTransform() {
 		Matrix4f matrix = new Matrix4f();
 		matrix.translate(position);
-		Matrix4f.mul(matrix, rotation.toRotationMatrix(), matrix);
+		matrix.mul(rotation.toRotationMatrix(), matrix);
 		return matrix;
 	}
 

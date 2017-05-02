@@ -3,9 +3,8 @@ package collada;
 import java.nio.FloatBuffer;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
 import collada.data.JointData;
 import collada.data.SkeletonData;
@@ -19,10 +18,8 @@ public class SkeletonLoader {
 	
 	private int jointCount = 0;
 	
-	private static final Matrix4f CORRECTION = new Matrix4f().rotate((float) Math.toRadians(-90), new Vector3f(1, 0, 0));
-
-	public SkeletonLoader(XMLNode visualSceneNode, List<String> boneOrder) {
-		this.armatureData = visualSceneNode.getChild("visual_scene").getChildWithAttribute("node", "id", "Armature");
+	public SkeletonLoader(XMLNode visualSceneNode, List<String> boneOrder, String animation) {
+		this.armatureData = visualSceneNode.getChild("visual_scene").getChildWithAttribute("node", "id", animation);
 		this.boneOrder = boneOrder;
 	}
 	
@@ -44,12 +41,11 @@ public class SkeletonLoader {
 		String nameId = jointNode.getAttribute("id");
 		int index = boneOrder.indexOf(nameId);
 		String[] matrixData = jointNode.getChild("matrix").getData().split(" ");
-		Matrix4f matrix = new Matrix4f();
-		matrix.load(convertData(matrixData));
+		Matrix4f matrix = new Matrix4f(convertData(matrixData));
 		matrix.transpose();
 		if (isRoot) {
 			//because in Blender z is up, but in our game y is up.
-			Matrix4f.mul(CORRECTION, matrix, matrix);
+			ColladaUtils.correct(matrix);
 		}
 		jointCount++;
 		return new JointData(index, nameId, matrix);

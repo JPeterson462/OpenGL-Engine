@@ -1,6 +1,6 @@
 package collada.data;
 
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 /**
  * This contains the data for a transformation of one joint, at a certain time

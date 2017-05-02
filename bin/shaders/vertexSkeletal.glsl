@@ -14,6 +14,9 @@ out vec3 pass_normal;
 
 uniform mat4 jointTransforms[MAX_JOINTS];
 uniform mat4 projectionViewMatrix;
+uniform mat4 modelMatrix;
+
+uniform vec4 plane;
 
 void main(void){
 	
@@ -29,7 +32,9 @@ void main(void){
 		totalNormal += worldNormal * in_Weights[i];
 	}
 	
+	totalLocalPos = modelMatrix * totalLocalPos;
 	gl_Position = projectionViewMatrix * totalLocalPos;
+	gl_ClipDistance[0] = dot(totalLocalPos, plane);
 	pass_normal = totalNormal.xyz;
 	pass_textureCoords = in_TexCoord;
 
