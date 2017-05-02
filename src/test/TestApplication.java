@@ -14,19 +14,17 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.util.vector.Matrix4f;
 import org.xml.sax.SAXException;
 
-import collada.XMLParser;
+import animatedModel.AnimatedModel;
+import animation.Animation;
 import engine.Assets;
 import engine.Engine;
 import engine.Entity;
 import engine.FirstPersonCamera;
 import engine.RawImage;
 import engine.Settings;
-import engine.animation.AnimatedModel;
-import engine.animation.AnimatedModelImporter;
-import engine.animation.Animation;
-import engine.animation.AnimationImporter;
 import engine.audio.AudioFormat;
 import engine.audio.Music;
 import engine.audio.SoundEffect;
@@ -50,7 +48,6 @@ import engine.rendering.Light;
 import engine.rendering.Material;
 import engine.rendering.Shader;
 import engine.rendering.VertexTemplate;
-import engine.rendering.passes.AnimatedModelRenderer;
 import engine.rendering.passes.DefaultGUIRenderer;
 import engine.rendering.passes.GUIRenderer;
 import engine.rendering.passes.ParticleRenderer;
@@ -72,6 +69,11 @@ import engine.text.Font;
 import engine.text.FontImporter;
 import engine.water.Water;
 import engine.water.WaterTile;
+import loaders.AnimatedModelLoader;
+import loaders.AnimationLoader;
+import renderer.AnimatedModelRenderer;
+import renderer.ICamera;
+import utils.MatrixConv;
 import utils.Screenshot;
 import utils.StringUtils;
 
@@ -112,6 +114,12 @@ public class TestApplication {
 	private static Soundtrack soundtrack;
 	
 	private static long seed = 0;//System.currentTimeMillis();
+	
+	private static AnimatedModelRenderer modelRenderer;
+	
+	private static ICamera camera;
+	
+	private static AnimatedModel animatedModel;
 
 	private static TerrainGenerator newGenerator(int x, int z) {
 //		return new ProceduralTerrainGenerator(seed, 35, 15, x, z);
@@ -119,11 +127,35 @@ public class TestApplication {
 	}
 
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-		System.out.println(XMLParser.loadXML(TestApplication.class.getClassLoader().getResourceAsStream("models/model.dae")));
 		WaterRenderer.WATER_HEIGHT = 20;//TEST
 		Settings settings = new Settings(new FileInputStream("settings.cfg"));
 		settings.write(new FileOutputStream("settings.cfg"));
 		FirstPersonCamera camera = new FirstPersonCamera(settings.fov, settings.aspectRatio, settings.nearPlane, settings.farPlane, new Vector3f(30, 10, 30));
+		TestApplication.camera = new ICamera() {
+
+			@Override
+			public Matrix4f getViewMatrix() {
+				return MatrixConv.convert(camera.getViewMatrix());
+			}
+
+			@Override
+			public Matrix4f getProjectionMatrix() {
+				return MatrixConv.convert(camera.getProjectionMatrix());
+			}
+
+			@Override
+			public Matrix4f getProjectionViewMatrix() {
+				org.joml.Matrix4f dest = new org.joml.Matrix4f();
+				camera.getProjectionMatrix().mul(camera.getViewMatrix(), dest);
+				return MatrixConv.convert(dest);
+			}
+
+			@Override
+			public void move() {
+				
+			}
+			
+		};
 		Engine engine = new Engine(settings);
 		ModelImporter.flags.setBit(0, true);
 		ModelImporter.flags.setBit(1, false);
@@ -211,10 +243,14 @@ public class TestApplication {
 				
 				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
 				
-				AnimatedModelRenderer animatedModelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
+				modelRenderer = new AnimatedModelRenderer();
+				
+				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
+				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), engine.getResource("textures/animatedDiffuse.png"));
+				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing, animatedModelRenderer);
+						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing);
 				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
@@ -222,13 +258,13 @@ public class TestApplication {
 				sceneRenderer.addLight(new Light(new Vector3f(10, 10, 10), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
 //				sceneRenderer.addEntity(entity);
 				
-				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
-				AnimatedModel animatedModel = AnimatedModelImporter.loadAnimatedModel("model.dae", e, Assets.newTexture("animatedDiffuse.png"));
-				animatedModel.doAnimation(animation);
-				Entity entity = new Entity(animatedModel);
-				entity.setPosition(new Vector3f(30, 30, 30));
-				entity.setScale(10);
-				sceneRenderer.addEntity(entity);
+//				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
+//				AnimatedModel animatedModel = AnimatedModelImporter.loadAnimatedModel("model.dae", e, Assets.newTexture("animatedDiffuse.png"));
+//				animatedModel.doAnimation(animation);
+//				Entity entity = new Entity(animatedModel);
+//				entity.setPosition(new Vector3f(30, 30, 30));
+//				entity.setScale(10);
+//				sceneRenderer.addEntity(entity);
 
 				Model lamp = Assets.newModel("lamp.obj", false);
 				Material lampMaterial = Assets.newMaterial("lamp.png");
@@ -328,6 +364,10 @@ public class TestApplication {
 			//			universe.update(delta);
 			controller.update(delta, terrain);
 			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, engine);
+			
+			animatedModel.update(delta);
+			modelRenderer.render(animatedModel, TestApplication.camera, new org.lwjgl.util.vector.Vector3f(0.2f, -0.3f, -0.8f));
+			
 //			particleRenderer.update(delta);
 //			particleRenderer.render(e);
 			guiRenderer.render(e);

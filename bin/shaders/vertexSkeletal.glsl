@@ -1,4 +1,4 @@
-#version 330
+#version 150
 
 const int MAX_JOINTS = 50;
 const int MAX_WEIGHTS = 3;

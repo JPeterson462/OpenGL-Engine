@@ -29,10 +29,6 @@ public class SceneRenderer {
 	
 	private HashMap<Geometry, ArrayList<Entity>> normalMappedEntityMap = new HashMap<>();
 
-	private HashMap<Geometry, ArrayList<Entity>> defaultAnimatedEntityMap = new HashMap<>();
-	
-	private HashMap<Geometry, ArrayList<Entity>> normalMappedAnimatedEntityMap = new HashMap<>();
-	
 	private Vector3f skyColor;
 	
 	private TerrainRenderer terrainRenderer;
@@ -44,8 +40,6 @@ public class SceneRenderer {
 	private ShadowRenderer shadowRenderer;
 
 	private PostProcessingRenderer postProcessingRenderer;
-	
-	private AnimatedModelRenderer animatedModelRenderer;
 	
 	private static final int MAX_LIGHTS = 4;
 	
@@ -59,7 +53,7 @@ public class SceneRenderer {
 	
 	public SceneRenderer(Shader defaultShader, Shader normalMappedShader, Camera camera, TerrainRenderer terrainRenderer, 
 			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer, 
-			PostProcessingRenderer postProcessingRenderer, AnimatedModelRenderer animatedModelRenderer) {
+			PostProcessingRenderer postProcessingRenderer) {
 		this.defaultShader = defaultShader;
 		this.normalMappedShader = normalMappedShader;
 		this.camera = camera;
@@ -73,7 +67,6 @@ public class SceneRenderer {
 		this.waterRenderer = waterRenderer;
 		this.shadowRenderer = shadowRenderer;
 		this.postProcessingRenderer = postProcessingRenderer;
-		this.animatedModelRenderer = animatedModelRenderer;
 	}
 	
 	public void addLight(Light light) {
@@ -82,13 +75,7 @@ public class SceneRenderer {
 	}
 	
 	public void addEntity(Entity entity) {
-		if (entity.isAnimated()) {
-//			if (entity.getMaterial().hasNormalTexture()) {
-//				addEntity(entity, normalMappedAnimatedEntityMap);
-//			} else {
-				addEntity(entity, defaultAnimatedEntityMap);
-//			}
-		} else {
+		{
 			if (entity.getMaterial().hasNormalTexture()) {
 				addEntity(entity, normalMappedEntityMap);
 			} else {
@@ -110,14 +97,6 @@ public class SceneRenderer {
 	
 	public Vector3f getSkyColor() {
 		return skyColor;
-	}
-	
-	private void renderAnimated(HashMap<Geometry, ArrayList<Entity>> entityMap, Engine engine, Vector3f lightDirection, float delta) {
-		for (ArrayList<Entity> entities : entityMap.values()) {
-			for (Entity entity : entities) {
-				animatedModelRenderer.render(entity.getAnimatedModel(), camera, engine, lightDirection, delta);
-			}
-		}
 	}
 	
 	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix) {
@@ -191,8 +170,6 @@ public class SceneRenderer {
 		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap());
 		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix);
 		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix);
-		renderAnimated(defaultAnimatedEntityMap, engine, new Vector3f(0, -1, 0), delta);
-		renderAnimated(normalMappedAnimatedEntityMap, engine, new Vector3f(0, -1, 0), delta);
 		skyboxRenderer.render(camera);
 	}
 	
