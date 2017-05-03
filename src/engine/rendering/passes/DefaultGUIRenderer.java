@@ -13,6 +13,8 @@ public class DefaultGUIRenderer implements WidgetRenderer {
 	
 	private Matrix4f modelMatrix;
 	
+	private Camera camera;
+	
 	public DefaultGUIRenderer(Shader shader) {
 		this.shader = shader;
 		modelMatrix = new Matrix4f();
@@ -21,6 +23,7 @@ public class DefaultGUIRenderer implements WidgetRenderer {
 	public void bind(Camera camera, Engine engine) {
 		shader.bind();
 		camera.uploadTo(shader);
+		this.camera = camera;
 	}
 
 	@Override
@@ -28,7 +31,7 @@ public class DefaultGUIRenderer implements WidgetRenderer {
 		modelMatrix.identity();
 		modelMatrix.translationRotateScale(widget.getAbsolutePosition().x, widget.getAbsolutePosition().y, 0, 0, 0, 0, 1, widget.getSize().x, widget.getSize().y, 1);
 		shader.uploadMatrix("modelMatrix", modelMatrix);
-		widget.render(engine);
+		widget.render(engine, camera);
 	}
 
 	@Override

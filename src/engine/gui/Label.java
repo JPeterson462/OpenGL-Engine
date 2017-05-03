@@ -4,20 +4,22 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import engine.Assets;
+import engine.Camera;
 import engine.Engine;
 import engine.rendering.passes.TextRenderer;
 import engine.rendering.passes.WidgetRenderer;
 import engine.text.Font;
+import engine.text.TextAlign;
 import engine.text.TextBuffer;
 
 public class Label extends Widget implements TextWidget {
 	
 	private TextBuffer textBuffer;
 	
-	public Label(String name, Font font, String text, Vector4f color, float fontSize, Vector2f size) {
+	public Label(String name, Font font, String text, Vector4f color, float fontSize, Vector2f size, TextAlign align) {
 		super(name);
 		getSize().set(size);
-		textBuffer = new TextBuffer(text, new Vector2f(), getSize(), color, fontSize, font, Assets.getEngine(), text.length());
+		textBuffer = new TextBuffer(text, new Vector2f(), size, color, fontSize, font, Assets.getEngine(), text.length(), align);
 	}
 
 	@Override
@@ -27,13 +29,13 @@ public class Label extends Widget implements TextWidget {
 	
 	public void layout() {
 		super.layout();
-		textBuffer.getPosition().set(getPosition());
+		textBuffer.getPosition().set(getAbsolutePosition());
 		textBuffer.getSize().set(getSize());
 		textBuffer.updateLayout(Assets.getEngine());
 	}
 
 	@Override
-	public void render(Engine engine) {
+	public void render(Engine engine, Camera camera) {
 		// IGNORE, TextRenderer handles this
 	}
 

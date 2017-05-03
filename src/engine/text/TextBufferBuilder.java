@@ -9,22 +9,25 @@ import engine.rendering.Vertex;
 
 public class TextBufferBuilder {
 	
-	public static void buildText(String text, Vector2f size, Vector4f color, Font font, float fontSize, ArrayList<Vertex> vertices, ArrayList<Integer> indices) {
+	public static void buildText(String text, Vector2f size, Vector4f color, Font font, float fontSize, ArrayList<Vertex> vertices, ArrayList<Integer> indices, TextAlign align) {
 		if (text.length() == 0)
 			return; // TextRenderer passes over this, no need to waste CPU cycles
 		Page page = font.getPages()[0];
 		String[] linesPass0 = text.split("\n");
 		ArrayList<String> linesPass1 = new ArrayList<>();
+		ArrayList<Float> lineWidths = new ArrayList<>();
+		float width;
 		for (int i = 0; i < linesPass0.length; i++) {
 			String line = linesPass0[i];
 			if (line.contains(" ")) {
 				String[] words = line.split(" ");
-				float width = 0;
+				width = 0;
 				String subline = "";
 				for (int j = 0; j < words.length; j++) {
 					float wordWidth = getWidth(words[j], font, fontSize, page);
 					if (wordWidth + width > size.x) {
 						linesPass1.add(subline.trim());
+						lineWidths.add(width);
 						subline = words[j];
 						width = wordWidth;
 					} else {
@@ -32,10 +35,12 @@ public class TextBufferBuilder {
 						width += wordWidth + font.getSpaceWidth();
 					}
 				}
+				lineWidths.add(width);
 				if (subline.length() > 0) {
 					linesPass1.add(subline);
 				}
 			} else {
+				width = getWidth(line, font, fontSize, page);
 				linesPass1.add(line);
 			}
 		}
@@ -45,6 +50,18 @@ public class TextBufferBuilder {
 		float scale = font.getScaleFactor(fontSize);
 		for (int i = 0; i < linesPass1.size(); i++) {
 			String line = linesPass1.get(i);
+			float lineWidth = lineWidths.get(i);
+			switch (align) {
+				case CENTER:
+					x = startX + (size.x - lineWidth) / 2;
+					break;
+				case LEFT:
+					x = startX;
+					break;
+				case RIGHT:
+					x = startX + (size.x - lineWidth);
+					break;
+			}
 			for (char c : line.toCharArray()) {
 				Letter letter = page.getLetter(c);
 				if (c != ' ') {

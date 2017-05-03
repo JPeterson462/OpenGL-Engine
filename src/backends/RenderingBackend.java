@@ -39,7 +39,7 @@ public interface RenderingBackend {
 	
 	public void prepareContext();
 	
-	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList);
+	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, boolean isStatic);
 	
 	public InstancedGeometry createInstancedGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, int instancedDataLength, int dimensions);
 	

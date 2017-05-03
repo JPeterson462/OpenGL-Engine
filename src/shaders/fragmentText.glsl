@@ -1,33 +1,34 @@
 #version 330
 
-uniform sampler2D texture;
+uniform sampler2D fontAtlas;
 
 in vec2 pass_TexCoord;
 in vec4 pass_Color;
 
 out vec4 out_Color;
 
-uniform vec4 textEffect;
-uniform vec3 effectColor;
+uniform vec4 effectSharpness;
 
-float smoothlyStep(float edge0, float edge1, float x) {
-	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-	return t * t * (3.0 - 2.0 * t);
-}
+const vec2 offset = vec2(0.05, 0.05);
+
+const vec3 outlineColor = vec3(0.2, 0.2, 0.2);
 
 void main(void) {
-	float lineWidth = textEffect.x;
-	float sharpness = textEffect.y;
-	float borderWidth = textEffect.z;
-	vec2 offset = vec2(textEffect.w, textEffect.w);
+	float width = effectSharpness.x;
+	float edge = effectSharpness.y;
+	float borderWidth = effectSharpness.z;
+	float borderEdge = effectSharpness.w;
 
-	float textureAlpha = texture2D(texture, pass_TexCoord).a;
-	float distance = 1.0 - textureAlpha;
-	float fontAlpha = 1.0 - smoothlyStep(lineWidth, lineWidth + sharpness, distance);
-	float textureAlpha2 = texture2D(texture, pass_TexCoord + offset).a;
-	float distance2 = 1.0 - textureAlpha2;
-	float outlineAlpha = 1.0 - smoothlyStep(borderWidth, borderWidth + sharpness, distance2);
-	float overallAlpha = fontAlpha + (1.0 - fontAlpha) * outlineAlpha;
-	vec3 overallColor = mix(effectColor, pass_Color.rgb, fontAlpha / overallAlpha);
+	vec3 color = pass_Color.rgb;
+
+	float distance = 1.0 - texture2D(fontAtlas, pass_TexCoord).a;
+	float alpha = 1.0 - smoothstep(width, width + edge, distance);
+	
+	float distance2 = 1.0 - texture2D(fontAtlas, pass_TexCoord + offset).a;
+	float outlineAlpha = 1.0 - smoothstep(borderWidth, borderWidth + borderEdge, distance2);
+	
+	float overallAlpha = alpha + (1.0 - alpha) * outlineAlpha;
+	vec3 overallColor = mix(outlineColor, color, alpha / overallAlpha);
+
 	out_Color = vec4(overallColor, overallAlpha);
 }

@@ -6,6 +6,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import com.esotericsoftware.minlog.Log;
+
 import engine.Engine;
 import engine.rendering.Geometry;
 import engine.rendering.Vertex;
@@ -32,9 +34,9 @@ public class TextBuffer {
 	
 	private ArrayList<Integer> indices;
 	
-	private TextEffect effect = TextEffect.newSharpnessEffect(0.2f);
+	private TextAlign align;
 	
-	public TextBuffer(String text, Vector2f position, Vector2f size, Vector4f color, float fontSize, Font font, Engine engine, int maxLetters) {
+	public TextBuffer(String text, Vector2f position, Vector2f size, Vector4f color, float fontSize, Font font, Engine engine, int maxLetters, TextAlign align) {
 		this.text = text;
 		this.position = position;
 		this.size = size;
@@ -49,10 +51,11 @@ public class TextBuffer {
 		for (int i = 0; i < maxLetters * 6; i++) {
 			indices.add(0);
 		}
-		TextBufferBuilder.buildText(text, size, color, font, fontSize, vertices, indices);
-		geometry = engine.getRenderingBackend().createGeometry(vertices, indices);
+		TextBufferBuilder.buildText(text, size, color, font, fontSize, vertices, indices, align);
+		this.align = align;
+		geometry = engine.getRenderingBackend().createGeometry(vertices, indices, false);
 		viewMatrix = new Matrix4f();
-		viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, 1, 1, 1);	
+		viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, 1, 1, 1);
 		this.maxLetters = maxLetters;
 	}
 	
@@ -81,9 +84,12 @@ public class TextBuffer {
 			throw new IllegalStateException("This TextBuffer can only hold " + maxLetters + " characters!");
 		}
 		if (text.length() > 0) {
-			TextBufferBuilder.buildText(text, size, color, font, fontSize, vertices, indices);
-			engine.getRenderingBackend().updateGeometry(geometry, vertices, indices);
-			viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, size.x, size.y, 1);	
+			TextBufferBuilder.buildText(text, size, color, font, fontSize, vertices, indices, align);
+//			engine.getRenderingBackend().updateGeometry(geometry, vertices, indices);
+			geometry = engine.getRenderingBackend().createGeometry(vertices, indices, true);//TODO; remove this... awful workaround
+			viewMatrix.translationRotateScale(position.x, position.y, 0, 0, 0, 0, 1, 1, 1, 1);	
+		} else {
+			Log.info("No text was supplied to this buffer");
 		}
 	}
 	
@@ -98,13 +104,4 @@ public class TextBuffer {
 	public Font getFont() {
 		return font;
 	}
-	
-	public void setEffect(TextEffect effect) {
-		this.effect = effect;
-	}
-	
-	public TextEffect getEffect() {
-		return effect;
-	}
-	
 }

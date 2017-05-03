@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 
 import com.esotericsoftware.minlog.Log;
 
@@ -20,7 +21,7 @@ public class GLGeometryBuilder {
 		public void checkError();
 	}
 	
-	public static Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, GLMemory memory, CheckError c) {
+	public static Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, GLMemory memory, CheckError c, boolean isStatic) {
 		c.checkError();
 		final int drawCall;
 		if (indexList.size() % 3 == 0)
@@ -32,8 +33,8 @@ public class GLGeometryBuilder {
 		VertexTemplate template = vertices.get(0).getTemplate();
 		switch (template) {
 			case POSITION: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 3);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				positions.limit(positions.capacity());
@@ -49,9 +50,9 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(1, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 3);
+				vao.attach(0, positionData, positions, 3, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {
@@ -60,9 +61,9 @@ public class GLGeometryBuilder {
 				};
 			}
 			case POSITION_TEXCOORD: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
-				VertexBufferObject textureData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
+				VertexBufferObject textureData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 3);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				FloatBuffer texCoords = BufferUtils.createFloatBuffer(vertices.size() * 2);
@@ -82,10 +83,10 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(2, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 3);
-				vao.attach(1, textureData, texCoords, 2);
+				vao.attach(0, positionData, positions, 3, isStatic);
+				vao.attach(1, textureData, texCoords, 2, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {
@@ -94,10 +95,10 @@ public class GLGeometryBuilder {
 				}; 
 			}
 			case POSITION_TEXCOORD_NORMAL: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
-				VertexBufferObject textureData = new VertexBufferObject(memory);
-				VertexBufferObject normalData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
+				VertexBufferObject textureData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject normalData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 3);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				FloatBuffer texCoords = BufferUtils.createFloatBuffer(vertices.size() * 2);
@@ -122,11 +123,11 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(3, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 3);
-				vao.attach(1, textureData, texCoords, 2);
-				vao.attach(2, normalData, normals, 3);
+				vao.attach(0, positionData, positions, 3, isStatic);
+				vao.attach(1, textureData, texCoords, 2, isStatic);
+				vao.attach(2, normalData, normals, 3, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {
@@ -135,10 +136,10 @@ public class GLGeometryBuilder {
 				}; 
 			}
 			case POSITION_TEXCOORD_COLOR: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
-				VertexBufferObject textureData = new VertexBufferObject(memory);
-				VertexBufferObject colorData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
+				VertexBufferObject textureData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject colorData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 2);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				FloatBuffer texCoords = BufferUtils.createFloatBuffer(vertices.size() * 2);
@@ -163,11 +164,11 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(3, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 2);
-				vao.attach(1, textureData, texCoords, 2);
-				vao.attach(2, colorData, colors, 4);
+				vao.attach(0, positionData, positions, 2, isStatic);
+				vao.attach(1, textureData, texCoords, 2, isStatic);
+				vao.attach(2, colorData, colors, 4, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {
@@ -176,11 +177,11 @@ public class GLGeometryBuilder {
 				}; 
 			}
 			case POSITION_TEXCOORD_NORMAL_TANGENT: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
-				VertexBufferObject textureData = new VertexBufferObject(memory);
-				VertexBufferObject normalData = new VertexBufferObject(memory);
-				VertexBufferObject tangentData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
+				VertexBufferObject textureData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject normalData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject tangentData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 3);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				FloatBuffer texCoords = BufferUtils.createFloatBuffer(vertices.size() * 2);
@@ -210,12 +211,12 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(4, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 3);
-				vao.attach(1, textureData, texCoords, 2);
-				vao.attach(2, normalData, normals, 3);
-				vao.attach(3, tangentData, tangents, 3);
+				vao.attach(0, positionData, positions, 3, isStatic);
+				vao.attach(1, textureData, texCoords, 2, isStatic);
+				vao.attach(2, normalData, normals, 3, isStatic);
+				vao.attach(3, tangentData, tangents, 3, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {
@@ -224,12 +225,12 @@ public class GLGeometryBuilder {
 				}; 
 			}
 			case POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
-				VertexBufferObject textureData = new VertexBufferObject(memory);
-				VertexBufferObject normalData = new VertexBufferObject(memory);
-				VertexBufferObject jointData = new VertexBufferObject(memory);
-				VertexBufferObject weightData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
+				VertexBufferObject textureData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject normalData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject jointData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject weightData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * 3);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				FloatBuffer texCoords = BufferUtils.createFloatBuffer(vertices.size() * 2);
@@ -264,13 +265,13 @@ public class GLGeometryBuilder {
 				}
 				VertexArrayObject vao = new VertexArrayObject(5, memory, 31 * vertices.hashCode() + indexList.hashCode());
 				vao.bind();
-				vao.attach(0, positionData, positions, 3);
-				vao.attach(1, textureData, texCoords, 2);
-				vao.attach(2, normalData, normals, 3);
-				vao.attach(3, jointData, joints, 3);
-				vao.attach(4, weightData, weights, 3);
+				vao.attach(0, positionData, positions, 3, isStatic);
+				vao.attach(1, textureData, texCoords, 2, isStatic);
+				vao.attach(2, normalData, normals, 3, isStatic);
+				vao.attach(3, jointData, joints, 3, isStatic);
+				vao.attach(4, weightData, weights, 3, isStatic);
 				vao.unbind();
-				vao.attach(indexData, indices);
+				vao.attach(indexData, indices, isStatic);
 				c.checkError();
 				return new Geometry(vao) {
 					public void renderGeometry() {

@@ -2,6 +2,7 @@ package engine.gui;
 
 import org.joml.Vector2f;
 
+import engine.Camera;
 import engine.Engine;
 import engine.rendering.passes.WidgetRenderer;
 
@@ -38,7 +39,7 @@ public abstract class Widget {
 	
 	public abstract void initialize();
 	
-	public abstract void render(Engine engine);
+	public abstract void render(Engine engine, Camera camera);
 	
 	public void layout() {
 		absolutePosition.set(position);

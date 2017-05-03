@@ -9,13 +9,12 @@ import engine.gui.Widget;
 import engine.rendering.Shader;
 import engine.rendering.Texture;
 import engine.text.TextBuffer;
-import engine.text.TextEffect;
 
 public class TextRenderer implements WidgetRenderer {
 	
 	private Shader shader;
 	
-	public TextRenderer(Shader shader, float width, float height) {
+	public TextRenderer(Shader shader) {
 		this.shader = shader;
 	}	
 	
@@ -25,6 +24,17 @@ public class TextRenderer implements WidgetRenderer {
 		shader.bind();
 		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
 	}
+	
+	public void render(TextBuffer buffer, Engine engine) {
+		shader.uploadMatrix("viewMatrix", buffer.getViewMatrix());
+		shader.uploadVector("effectSharpness", new Vector4f(0.5f, 0.1f, 0, 0.4f));
+		Texture texture = buffer.getFont().getPages()[0].getTexture();
+		buffer.getGeometry().bind();
+		texture.bind(0);
+		buffer.getGeometry().renderGeometry();
+		buffer.getGeometry().unbind();
+		texture.unbind();
+	}
 
 	@Override
 	public void render(Widget widget, Engine engine) {
@@ -32,16 +42,7 @@ public class TextRenderer implements WidgetRenderer {
 			TextBuffer buffer = ((TextWidget) widget).getBuffer();
 			if (buffer.getText().length() == 0)
 				return; // Don't render empty text buffers
-			shader.uploadMatrix("viewMatrix", buffer.getViewMatrix());
-			TextEffect effect = buffer.getEffect();
-			shader.uploadVector("textEffect", new Vector4f(effect.getLineWidth(), effect.getSharpness(), effect.getBorderWidth(), effect.getOffset().x));
-			shader.uploadVector("effectColor", effect.getColor());
-			Texture texture = buffer.getFont().getPages()[0].getTexture();
-			buffer.getGeometry().bind();
-			texture.bind(0);
-			buffer.getGeometry().renderGeometry();
-			buffer.getGeometry().unbind();
-			texture.unbind();
+			render(buffer, engine);
 		}
 	}
 

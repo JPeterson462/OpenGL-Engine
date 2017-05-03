@@ -22,38 +22,48 @@ public class VertexBufferObject {
 	
 	private boolean uploaded = false;
 	
-	public VertexBufferObject(GLMemory memory) {
+	private int target;
+	
+	public VertexBufferObject(GLMemory memory, int target) {
 		vboId = GL15.glGenBuffers();
 		memory.vboSet.add(vboId);
+		this.target = target;
 	}
 	
-	public void bind(int target) {
+	public void bind() {
 		GL15.glBindBuffer(target, vboId);
 	}
 	
-	public void upload(int target, Buffer data, boolean isStatic, int elements) {
+	public void upload(Buffer data, boolean isStatic, int elements) {
 		this.elements = elements;
+		if (uploaded) System.out.println("Updating buffer... " + data);
 		if (data instanceof FloatBuffer) {
 			if (!uploaded)
 				GL15.glBufferData(target, (FloatBuffer) data, isStatic ? GL15.GL_STATIC_DRAW : GL15.GL_DYNAMIC_DRAW);
-			else
+			else {
+//				GL15.glBufferData(target, data.capacity() << 2, GL15.GL_STATIC_DRAW);
 				GL15.glBufferSubData(target, 0, (FloatBuffer) data);
+			}
 			type = Float.class;
 			uploaded = true;
 		}
 		else if (data instanceof ShortBuffer) {
 			if (!uploaded)
 				GL15.glBufferData(target, (ShortBuffer) data, isStatic ? GL15.GL_STATIC_DRAW : GL15.GL_DYNAMIC_DRAW);
-			else
+			else {
+//				GL15.glBufferData(target, data.capacity() << 1, GL15.GL_STATIC_DRAW);
 				GL15.glBufferSubData(target, 0, (ShortBuffer) data);
+			}
 			type = Short.class;
 			uploaded = true;
 		}
 		else if (data instanceof IntBuffer) {
 			if (!uploaded)
 				GL15.glBufferData(target, (IntBuffer) data, isStatic ? GL15.GL_STATIC_DRAW : GL15.GL_DYNAMIC_DRAW);
-			else
+			else {
+//				GL15.glBufferData(target, data.capacity() << 2, GL15.GL_STATIC_DRAW);
 				GL15.glBufferSubData(target, 0, (IntBuffer) data);
+			}
 			type = Integer.class;
 			uploaded = true;
 		}
@@ -72,7 +82,7 @@ public class VertexBufferObject {
 			Log.warn("Unknown buffer type: " + type.getName());
 	}
 	
-	public void unbind(int target) {
+	public void unbind() {
 		GL15.glBindBuffer(target, 0);
 	}
 

@@ -62,8 +62,20 @@
 	Added Soundtracks (Music packed in ZIPs)
 	Better widget framework
 	Started skeletal animation (still really broken)
-5-2-17
+5-2-17:
 	Skeletal animation working
+	Added skybox back
+	Added text rendering to GUIRenderer (but it doesn't update text)
+	Text alignment
+	
+Upcoming:
+	Casting shadows on other entities
+	Fix shadow distortion
+	Add AL_SOFT flag to audio backend
+	Lighting animated models
+	Normal Mapped animated models
+	
+========================================================================
 	
 Remaining Tutorials:
 	General:
@@ -79,18 +91,21 @@ Remaining Tutorials:
 
 https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
 
+- Lock mouse to center of screen and handle movement left or right before recentering
+
 - Fix particle rendering
 - Shadows to other entities
 - Soft shadows (Shadows distorted depending on rotation towards shadow)
 - Music on its own thread?
-- Label Widget not rendering
 - Fix PostProcessingRenderer (doesn't render to FBO, just straight to screen)
 
 - Lighting animated models
-- Optimize animated models
 - Normal Mapped animated models
-- Clean up access to Assets.getEngine()
-- Reflecting animated models (clip planes)
+
+- Remove awful text renderer workaround to glBufferSubData
+- rendering to framebuffer for expensive renders like fonts?
+- deferred lighting?
+- Networking
 
 Terrain:
 - navmesh for traveling on terrain
@@ -112,19 +127,13 @@ Physics:
 - change orientation during collision
 - connect engine.physics.Body to engine.Entity
 
-Text:
-- text renderer with multiple pages
-- text alignment
-
 Skybox:
-- follow ThinMatrix tutorial again?
-- skybox background color
-- cloud layers on skybox
-- stars at night
+- more realistic
 - better fog
-- skybox rotate with player
 - doppler effect-ish
-- update fog color from skybox
+- top texture not valids
+- RGB skybox
+- update sky color
 
 Water:
 - fix soft edges (Water Tutorial 8)

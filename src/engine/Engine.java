@@ -37,6 +37,8 @@ public class Engine {
 	
 	private Mouse mouse = new Mouse();
 	
+	private boolean running = true;
+	
 	private FileDropCallback fileDropCallback = (files) -> {
 		// Ignore the files
 	};
@@ -53,6 +55,10 @@ public class Engine {
 				audioBackend = new ALAudioBackend();
 				break;
 		}
+	}
+	
+	public void setRunning(boolean running) {
+		this.running = running;
 	}
 	
 	public void setFileDropCallback(FileDropCallback fileDropCallback) {
@@ -112,7 +118,7 @@ public class Engine {
 		init.invoke(this);
 		lastSecond = System.currentTimeMillis();
 		renderingBackend.showDisplay();
-		while (renderingBackend.isOpen()) {
+		while (renderingBackend.isOpen() && running) {
 			renderingBackend.prepareContext();
 			update.invoke(this);
 			renderingBackend.updateContext();

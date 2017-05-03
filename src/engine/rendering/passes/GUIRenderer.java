@@ -21,7 +21,6 @@ public class GUIRenderer {
 		gui.getContainer().tryInitialize();
 		gui.getContainer().connectLookup(widget -> this.renderers.get(widget.getRenderer()));
 		camera = new OrthographicCamera(width, height);
-		gui.getContainer().connectCamera(camera);
 	}
 	
 	public Camera getCamera() {
@@ -31,7 +30,7 @@ public class GUIRenderer {
 	public void render(Engine engine) {
 		gui.getContainer().tryInitialize();
 		camera.update();
-		gui.getContainer().render(engine);
+		gui.getContainer().render(engine, camera);
 		engine.getRenderingBackend().setDepth(true);
 	}
 

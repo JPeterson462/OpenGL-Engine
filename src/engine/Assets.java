@@ -41,11 +41,11 @@ public class Assets {
 	}
 	
 	public static Geometry newGeometry(Model model) {
-		return engine.getRenderingBackend().createGeometry(model.getVertices(), model.getIndices());
+		return engine.getRenderingBackend().createGeometry(model.getVertices(), model.getIndices(), true);
 	}
 	
 	public static Geometry newGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList) {
-		return engine.getRenderingBackend().createGeometry(vertices, indexList);
+		return engine.getRenderingBackend().createGeometry(vertices, indexList, true);
 	}
 	
 	public static Texture newTexture(String path) {
@@ -110,7 +110,7 @@ public class Assets {
 		indices.add(2);
 		indices.add(3);
 		indices.add(0);
-		return engine.getRenderingBackend().createGeometry(vertices, indices);
+		return engine.getRenderingBackend().createGeometry(vertices, indices, true);
 	}
 	
 	public static Geometry newQuad() {
@@ -126,7 +126,7 @@ public class Assets {
 		indices.add(2);
 		indices.add(3);
 		indices.add(0);
-		return engine.getRenderingBackend().createGeometry(vertices, indices);
+		return engine.getRenderingBackend().createGeometry(vertices, indices, true);
 	}
 	
 	public static Framebuffer newFramebuffer(int width, int height, int colorAttachments, boolean depthBuffer) {

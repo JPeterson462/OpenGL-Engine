@@ -1,6 +1,5 @@
 package engine.input;
 
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import engine.FirstPersonCamera;
@@ -49,29 +48,26 @@ public class FirstPersonCameraController {
 	}
 	
 	public void update(float delta, Terrain terrain) {
-		Vector3f movementForward = new Vector3f(speed, 0, 0);
-		movementForward.rotate(new Quaternionf().rotationY(-camera.getYaw()));
-		Vector3f movementSideways = new Vector3f(movementForward).cross(new Vector3f(0, 1, 0));
+		float distance = speed;
 		Vector3f totalMovement = new Vector3f();
 		if (keyboard.isKeyDown(Key.W)) {
-			totalMovement.add(movementForward.x, 0, movementForward.z);
+			totalMovement.add(distance * (float) Math.sin(Math.toRadians(camera.getYaw())), 0, -distance * (float) Math.cos(Math.toRadians(camera.getYaw())));
 		}
 		if (keyboard.isKeyDown(Key.A)) {
-			totalMovement.sub(movementSideways.x, 0, movementSideways.z);
+			totalMovement.add(distance * (float) Math.sin(Math.toRadians(camera.getYaw()) - (float) Math.PI * 0.5f), 0, -distance * (float) Math.cos(Math.toRadians(camera.getYaw()) - (float) Math.PI * 0.5f));
 		}
 		if (keyboard.isKeyDown(Key.S)) {
-			totalMovement.sub(movementForward.x, 0, movementForward.z);
+			totalMovement.add(-distance * (float) Math.sin(Math.toRadians(camera.getYaw())), 0, distance * (float) Math.cos(Math.toRadians(camera.getYaw())));
 		}
 		if (keyboard.isKeyDown(Key.D)) {
-			totalMovement.add(movementSideways.x, 0, movementSideways.z);
+			totalMovement.add(-distance * (float) Math.sin(Math.toRadians(camera.getYaw()) - (float) Math.PI * 0.5f), 0, distance * (float) Math.cos(Math.toRadians(camera.getYaw()) - (float) Math.PI * 0.5f));
 		}
 		body.getLinearVelocity().set(totalMovement);
 		if (mouseX >= 0 && mouseY >= 0) {
-			float maxRotation = (float) (20 * Math.PI) * mouseSensitivity * delta;
-			float maxDx = 1.5f, maxDy = 1.5f;
+			float maxRotation = (float) 90 * mouseSensitivity * delta;
 			float dx = mouse.getMouseX() - mouseX, dy = mouse.getMouseY() - mouseY;
-			camera.setPitch(camera.getPitch() + maxRotation * dy / maxDy);
-			camera.setYaw(camera.getYaw() + maxRotation * dx / maxDx);
+			camera.setPitch(camera.getPitch() + maxRotation * dy);
+			camera.setYaw(camera.getYaw() + maxRotation * dx);
 		}
 		
 		// START TEST PHYSICS

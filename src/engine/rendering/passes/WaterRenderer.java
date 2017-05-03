@@ -59,7 +59,7 @@ public class WaterRenderer {
 		indices.add(2);
 		indices.add(3);
 		indices.add(0);
-		geometry = engine.getRenderingBackend().createGeometry(vertices, indices);
+		geometry = engine.getRenderingBackend().createGeometry(vertices, indices, true);
 		reflectionBuffer = engine.getRenderingBackend().createFramebuffer(engine.getSettings().width, engine.getSettings().height, 1, true);
 		refractionBuffer = engine.getRenderingBackend().createFramebuffer(engine.getSettings().width / 4, engine.getSettings().height / 4, 1, false);
 		this.dudvMap = dudvMap;

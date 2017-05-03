@@ -1,6 +1,7 @@
 package engine.gui;
 
 import engine.Assets;
+import engine.Camera;
 import engine.Engine;
 import engine.rendering.Geometry;
 import engine.rendering.Texture;
@@ -34,7 +35,7 @@ public class Image extends Widget {
 	}
 
 	@Override
-	public void render(Engine engine) {
+	public void render(Engine engine, Camera camera) {
 		geometry.bind();
 		texture.bind(0);
 		geometry.renderGeometry();

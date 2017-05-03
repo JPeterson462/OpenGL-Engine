@@ -20,6 +20,7 @@ import engine.Assets;
 import engine.Engine;
 import engine.Entity;
 import engine.FirstPersonCamera;
+import engine.OrthographicCamera;
 import engine.RawImage;
 import engine.Settings;
 import engine.animation.AnimatedModel;
@@ -69,6 +70,8 @@ import engine.terrain.TerrainTile;
 import engine.terrain.TerrainTexturePack;
 import engine.text.Font;
 import engine.text.FontImporter;
+import engine.text.TextBuffer;
+import engine.text.TextAlign;
 import engine.water.Water;
 import engine.water.WaterTile;
 import utils.Screenshot;
@@ -85,6 +88,7 @@ public class TestApplication {
 	private static GUIRenderer guiRenderer;
 
 	private static TextRenderer textRenderer;
+	private static TextBuffer textBuffer;
 
 	private static ParticleRenderer particleRenderer;
 
@@ -117,6 +121,10 @@ public class TestApplication {
 	private static FirstPersonCamera camera;
 	
 	private static AnimatedModel animatedModel;
+	
+	private static OrthographicCamera camera2d;
+	
+	private static Label l0;
 
 	private static TerrainGenerator newGenerator(int x, int z) {
 //		return new ProceduralTerrainGenerator(seed, 35, 15, x, z);
@@ -128,6 +136,7 @@ public class TestApplication {
 		Settings settings = new Settings(new FileInputStream("settings.cfg"));
 		settings.write(new FileOutputStream("settings.cfg"));
 		camera = new FirstPersonCamera(settings.fov, settings.aspectRatio, settings.nearPlane, settings.farPlane, new Vector3f(30, 10, 30));
+		camera2d = new OrthographicCamera(settings.width, settings.height);
 		Engine engine = new Engine(settings);
 		ModelImporter.flags.setBit(0, true);
 		ModelImporter.flags.setBit(1, false);
@@ -141,7 +150,8 @@ public class TestApplication {
 				soundtrack = Assets.newSoundtrack("AvengedSevenfold.zip", AudioFormat.VORBIS);
 				
 				font = FontImporter.loadFont("Consolas.fnt", e);
-				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR), e.getSettings().width, e.getSettings().height);
+				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
+				textBuffer = new TextBuffer("Testing Renderer", new Vector2f(50, 50), new Vector2f(500, 100), new Vector4f(1, 1, 1, 1), 24, font, e, 36, TextAlign.LEFT);
 
 				particleRenderer = new ParticleRenderer(Assets.newInstancedShader("fragmentParticle.glsl", "vertexParticle.glsl", 
 						new int[] { 0, 1, 5, 6 }, new String[] { "in_Position", "modelViewMatrix", "textureAtlasOffset", "blendFactor" }), camera, e);
@@ -150,7 +160,7 @@ public class TestApplication {
 
 				fern = Assets.newModel("fern.obj", false);
 				fernMaterial = Assets.newMaterial("fern.png");
-				fernGeometry = e.getRenderingBackend().createGeometry(fern.getVertices(), fern.getIndices());
+				fernGeometry = e.getRenderingBackend().createGeometry(fern.getVertices(), fern.getIndices(), true);
 				entity = new Entity("models/tree.obj", "textures/tree.png", e, 1, 1, 0, 0);
 				entity.setScale(3);
 				shader = Assets.newShader("fragmentDefault.glsl", "vertexDefault.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL);
@@ -176,7 +186,7 @@ public class TestApplication {
 //				tiles[1][1] = new TerrainTile(newGenerator(1, 1), e, pack);
 				terrain = new Terrain(tiles);
 
-				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexSkybox.glsl", VertexTemplate.POSITION), e);
+				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexSkybox.glsl", VertexTemplate.POSITION), e, camera);
 
 				Light sun = new Light(new Vector3f(100000, 100000, -100000), new Vector3f(1.3f, 1.3f, 1.3f));
 				
@@ -205,8 +215,9 @@ public class TestApplication {
 				i0.getSize().set(200, 70);
 				container.addWidget(i0);
 				
-//				Label l0 = new Label("id1", font, "Hello World", new Vector4f(1, 1, 0, 1), 24, new Vector2f(200, 70));
-//				container.addWidget(l0);
+				l0 = new Label("id1", font, "Hello World", new Vector4f(1, 1, 1, 1), 24, new Vector2f(200, 70), TextAlign.LEFT);
+				l0.getPosition().set(new Vector2f(0, 200));
+				container.addWidget(l0);
 				
 				container.layout();
 				
@@ -222,7 +233,7 @@ public class TestApplication {
 				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						engine.getSettings().backgroundColor, skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
+						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
 				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
@@ -244,7 +255,7 @@ public class TestApplication {
 
 				Model lamp = Assets.newModel("lamp.obj", false);
 				Material lampMaterial = Assets.newMaterial("lamp.png");
-				Geometry lampGeometry = e.getRenderingBackend().createGeometry(lamp.getVertices(), lamp.getIndices());
+				Geometry lampGeometry = e.getRenderingBackend().createGeometry(lamp.getVertices(), lamp.getIndices(), true);
 				Entity lamp1 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
 				lamp1.setPosition(new Vector3f(185, terrain.getHeightAt(185, -293), -293));
 				Entity lamp2 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
@@ -269,8 +280,11 @@ public class TestApplication {
 				Material treeMaterial = Assets.newMaterial("tree.png");
 				Geometry treeGeometry = Assets.newGeometry(tree);
 				
+				int entities = 500;
+				System.out.println("Rendering " + (entities * 2) + " entities");
+				
 				Random random = new Random();
-				for (int i = 0; i < 600; i++) {
+				for (int i = 0; i < entities; i++) {
 					entity = new Entity(fern, fernMaterial, fernGeometry, 2, 2, nextInt(random), nextInt(random));					
 					entity.setPosition(new Vector3f(nextCoordinate(random), 0, nextCoordinate(random)));
 					entity.getPosition().y = terrain.getHeightAt(entity.getPosition().x, entity.getPosition().z);
@@ -296,6 +310,9 @@ public class TestApplication {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
+						}
+						if (key.equals(Key.ESCAPE)) {
+							e.setRunning(false);
 						}
 					}
 
@@ -340,6 +357,11 @@ public class TestApplication {
 			//			universe.update(delta);
 			controller.update(delta, terrain);
 			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, e);
+			
+			textRenderer.bind(camera2d, e);
+//			textRenderer.render(l0.getBuffer(), e);
+			textRenderer.render(textBuffer, e);
+			textRenderer.unbind(e);
 			
 //			particleRenderer.update(delta);
 //			particleRenderer.render(e);

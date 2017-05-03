@@ -20,5 +20,12 @@ public class StringUtils {
 			return "0" + number;
 		return "" + number;
 	}
+	
+	public static String capitalize(String text) {
+		if (text.length() < 2) {
+			return text.toUpperCase();
+		}
+		return Character.toUpperCase(text.charAt(0)) + text.substring(1).toLowerCase();
+	}
 
 }

@@ -31,8 +31,6 @@ public class SceneRenderer {
 
 	private HashMap<Geometry, ArrayList<Entity>> defaultAnimatedEntityMap = new HashMap<>();
 	
-	private Vector3f skyColor;
-	
 	private TerrainRenderer terrainRenderer;
 	
 	private SkyboxRenderer skyboxRenderer;
@@ -56,7 +54,7 @@ public class SceneRenderer {
 	private Matrix4f emptyMatrix = new Matrix4f();
 	
 	public SceneRenderer(Shader defaultShader, Shader normalMappedShader, Camera camera, TerrainRenderer terrainRenderer, 
-			Vector3f skyColor, SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer, 
+			SkyboxRenderer skyboxRenderer, WaterRenderer waterRenderer, ShadowRenderer shadowRenderer, 
 			PostProcessingRenderer postProcessingRenderer, AnimatedModelRenderer animatedModelRenderer) {
 		this.defaultShader = defaultShader;
 		this.normalMappedShader = normalMappedShader;
@@ -65,7 +63,6 @@ public class SceneRenderer {
 //		directionalLightPosition = new Vector3f(5, 50, -5);
 //		directionalLightColor = new Vector3f(1, 1, 1);
 		this.terrainRenderer = terrainRenderer;
-		this.skyColor = skyColor;
 		this.skyboxRenderer = skyboxRenderer;
 		mousePicker = new MousePicker(camera);
 		this.waterRenderer = waterRenderer;
@@ -102,10 +99,6 @@ public class SceneRenderer {
 		}
 	}
 	
-	public Vector3f getSkyColor() {
-		return skyColor;
-	}
-	
 	private void renderAnimated(HashMap<Geometry, ArrayList<Entity>> entityMap, Vector3f lightDir, Engine engine, Vector4f plane) {
 		for (ArrayList<Entity> entities : entityMap.values()) {
 			for (Entity entity : entities) {
@@ -116,7 +109,7 @@ public class SceneRenderer {
 		}
 	}
 	
-	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix) {
+	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix, Vector3f skyColor) {
 		shader.bind();
 		if (normalMaps) {
 			shader.uploadInt("diffuseTexture", 0);
@@ -183,15 +176,17 @@ public class SceneRenderer {
 		shader.unbind();
 	}
 	
-	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta) {
+	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta, Vector3f skyColor) {
 		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap());
-		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix);
-		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix);
+		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix, skyColor);
+		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix, skyColor);
 		renderAnimated(defaultAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane);
-		skyboxRenderer.render(camera);
+		skyboxRenderer.render(camera, skyColor);
 	}
 	
 	public void render(float delta, Mouse mouse, int width, int height, Engine engine) {
+		Vector3f fogColor = skyboxRenderer.getSmoothFogColor();
+		engine.getRenderingBackend().setBackgroundColor(fogColor.x, fogColor.y, fogColor.z);
 		for (ArrayList<Entity> entities : defaultAnimatedEntityMap.values()) {
 			for (Entity entity : entities) {
 				if (entity.isAnimated()) {
@@ -223,8 +218,8 @@ public class SceneRenderer {
 			}
 		});
 		postProcessingRenderer.render(engine, () -> {
-			skyboxRenderer.update(delta);
-			waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix, engine, delta), delta);
+			skyboxRenderer.update(camera, delta);
+			waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix, engine, delta, fogColor), delta);
 		});
 	}
 	

@@ -1,3 +1,0 @@
-- Changing Cursor
-- Faster Text Renderer
-- each widget passes its own shader?

@@ -239,8 +239,8 @@ public class GLRenderingBackend implements RenderingBackend {
 	}
 
 	@Override
-	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList) {
-		return GLGeometryBuilder.createGeometry(vertices, indexList, memory, () -> checkError());
+	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, boolean isStatic) {
+		return GLGeometryBuilder.createGeometry(vertices, indexList, memory, () -> checkError(), isStatic);
 	}
 
 	@Override
@@ -257,9 +257,9 @@ public class GLRenderingBackend implements RenderingBackend {
 		VertexTemplate template = vertices.get(0).getTemplate();
 		switch (template) {
 			case POSITION: {
-				VertexBufferObject positionData = new VertexBufferObject(memory);
-				VertexBufferObject instanceData = new VertexBufferObject(memory);
-				VertexBufferObject indexData = new VertexBufferObject(memory);
+				VertexBufferObject positionData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject instanceData = new VertexBufferObject(memory, GL15.GL_ARRAY_BUFFER);
+				VertexBufferObject indexData = new VertexBufferObject(memory, GL15.GL_ELEMENT_ARRAY_BUFFER);
 				FloatBuffer positions = BufferUtils.createFloatBuffer(vertices.size() * dimensions);
 				IntBuffer indices = BufferUtils.createIntBuffer(indexList.size());
 				positions.limit(positions.capacity());
@@ -297,10 +297,10 @@ public class GLRenderingBackend implements RenderingBackend {
 				return new InstancedGeometry(instancedVAO) {
 					public void updateInstances(FloatBuffer instanceBuffer) {
 						VertexBufferObject instanceData = ((InstancedVertexArrayObject) getBackendData()).getInstances();
-						instanceData.bind(GL15.GL_ARRAY_BUFFER);
+						instanceData.bind();
 						GL15.glBufferData(GL15.GL_ARRAY_BUFFER, instanceBuffer.limit() * 4, GL15.GL_STREAM_DRAW);
 						GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, instanceBuffer);
-						instanceData.unbind(GL15.GL_ARRAY_BUFFER);
+						instanceData.unbind();
 					}
 					
 					public void renderGeometry(int count) {
@@ -344,16 +344,18 @@ public class GLRenderingBackend implements RenderingBackend {
 					colors.put(i * 4 + 2, vertex.getColor().z);
 					colors.put(i * 4 + 3, vertex.getColor().w);
 				}
-				indexData.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
-				indexData.upload(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, false, 0);
-				indexData.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
-				positionData.bind(GL15.GL_ARRAY_BUFFER);
-				positionData.upload(GL15.GL_ARRAY_BUFFER, positions, false, 2);
-				textureData.bind(GL15.GL_ARRAY_BUFFER);
-				textureData.upload(GL15.GL_ARRAY_BUFFER, texCoords, false, 2);
-				colorData.bind(GL15.GL_ARRAY_BUFFER);
-				colorData.upload(GL15.GL_ARRAY_BUFFER, colors, false, 4);
-				colorData.unbind(GL15.GL_ARRAY_BUFFER);
+				geometry.bind();
+				indexData.bind();
+				indexData.upload(indices, false, 0);
+				indexData.unbind();
+				positionData.bind();
+				positionData.upload(positions, false, 2);
+				textureData.bind();
+				textureData.upload(texCoords, false, 2);
+				colorData.bind();
+				colorData.upload(colors, false, 4);
+				colorData.unbind();
+				geometry.unbind();
 				break;
 			}
 			default:

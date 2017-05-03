@@ -71,7 +71,7 @@ public class TerrainTile {
 				indices.add(bottomRight);
 			}
 		}
-		geometry = engine.getRenderingBackend().createGeometry(vertices, indices);
+		geometry = engine.getRenderingBackend().createGeometry(vertices, indices, true);
 	}
 	
 	private Vector3f calculateNormal(int x, int z) {

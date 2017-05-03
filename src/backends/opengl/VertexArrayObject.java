@@ -2,7 +2,6 @@ package backends.opengl;
 
 import java.nio.Buffer;
 
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -25,19 +24,19 @@ public class VertexArrayObject {
 		this.hashCode = hashCode;
 	}
 	
-	public void attach(int position, VertexBufferObject object, Buffer data, int elements) {
+	public void attach(int position, VertexBufferObject object, Buffer data, int elements, boolean isStatic) {
 		vbos[position] = object;
-		object.bind(GL15.GL_ARRAY_BUFFER);
-		object.upload(GL15.GL_ARRAY_BUFFER, data, false, elements);
+		object.bind();
+		object.upload(data, isStatic, elements);
 		object.attach(position);
-		object.unbind(GL15.GL_ARRAY_BUFFER);
+		object.unbind();
 	}
 	
-	public void attach(VertexBufferObject object, Buffer data) {
+	public void attach(VertexBufferObject object, Buffer data, boolean isStatic) {
 		indexBuffer = object;
-		object.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
-		object.upload(GL15.GL_ELEMENT_ARRAY_BUFFER, data, false, 0);
-		object.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+		object.bind();
+		object.upload(data, isStatic, 0);
+		object.unbind();
 		size = data.limit();
 	}
 	
@@ -50,7 +49,7 @@ public class VertexArrayObject {
 		for (int i = 0; i < vbos.length; i++)
 			GL20.glEnableVertexAttribArray(i);
 		if (indexBuffer != null)
-			indexBuffer.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+			indexBuffer.bind();
 	}
 	
 	public void bind(int attributes) {
@@ -58,12 +57,12 @@ public class VertexArrayObject {
 		for (int i = 0; i < attributes; i++)
 			GL20.glEnableVertexAttribArray(i);
 		if (indexBuffer != null)
-			indexBuffer.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+			indexBuffer.bind();
 	}
 	
 	public void unbind() {
 		if (indexBuffer != null)
-			indexBuffer.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+			indexBuffer.unbind();
 		for (int i = 0; i < vbos.length; i++)
 			GL20.glDisableVertexAttribArray(i);
 		GL30.glBindVertexArray(0);
@@ -71,7 +70,7 @@ public class VertexArrayObject {
 
 	public void unbind(int attributes) {
 		if (indexBuffer != null)
-			indexBuffer.unbind(GL15.GL_ELEMENT_ARRAY_BUFFER);
+			indexBuffer.unbind();
 		for (int i = 0; i < attributes; i++)
 			GL20.glDisableVertexAttribArray(i);
 		GL30.glBindVertexArray(0);

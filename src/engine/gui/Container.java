@@ -13,8 +13,6 @@ public class Container extends Widget {
 	
 	private WidgetRendererLookup rendererLookup;
 	
-	private Camera camera;
-
 	public Container(String name) {
 		super(name);
 	}
@@ -42,13 +40,6 @@ public class Container extends Widget {
 		});
 	}
 	
-	public void connectCamera(Camera camera) {
-		this.camera = camera;
-		widgets.forEach(widget -> {
-			if (widget instanceof Container) ((Container) widget).connectCamera(camera);
-		});
-	}
-	
 	public void layout() {
 		super.layout();
 		widgets.forEach(widget -> widget.layout());
@@ -64,7 +55,7 @@ public class Container extends Widget {
 	}
 
 	@Override
-	public void render(Engine engine) {
+	public void render(Engine engine, Camera camera) {
 		Class<?> lastRendererClass = null;
 		WidgetRenderer renderer = null;
 		engine.getRenderingBackend().setDepth(false);
@@ -81,6 +72,7 @@ public class Container extends Widget {
 			renderer.render(widget, engine);
 			lastRendererClass = rendererClass;
 		}
+		renderer.unbind(engine);
 	}
 
 	@Override
