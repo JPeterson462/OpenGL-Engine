@@ -1,6 +1,5 @@
 package engine.shadows;
 
-import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -141,14 +140,10 @@ public class ShadowBox {
 		return point4f;
 	}
 	
-	private AxisAngle4f rotation = new AxisAngle4f();
-	
 	private Matrix4f cameraRotationMatrix = new Matrix4f();
 	
 	private Matrix4f calculateCameraRotationMatrix() {
-		camera.getViewMatrix().getRotation(rotation);
-		rotation.angle = -rotation.angle;
-		return cameraRotationMatrix.identity().rotate(rotation);
+		return cameraRotationMatrix.identity().rotateXYZ((float) Math.toRadians(-camera.getPitch()), (float) Math.toRadians(-camera.getYaw()), 0);
 	}
 	
 	private void calculateWidthsAndHeights(float nearPlane, float fov, float aspectRatio) {

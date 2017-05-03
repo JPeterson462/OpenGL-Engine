@@ -67,13 +67,15 @@
 	Added skybox back
 	Added text rendering to GUIRenderer (but it doesn't update text)
 	Text alignment
+5-3-17:
+	Fixed shadow distortion
 	
 Upcoming:
 	Casting shadows on other entities
-	Fix shadow distortion
-	Add AL_SOFT flag to audio backend
 	Lighting animated models
 	Normal Mapped animated models
+	
+	Better lighting (deferred lighting)
 	
 ========================================================================
 	

@@ -14,6 +14,7 @@ import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.EXTThreadLocalContext;
+import org.lwjgl.openal.SOFTDirectChannels;
 import org.lwjgl.system.MemoryUtil;
 
 import com.esotericsoftware.minlog.Log;
@@ -121,6 +122,9 @@ public class ALAudioBackend implements AudioBackend {
 		SoundData data = decoders.get(format).decode(stream);
 		int source = AL10.alGenSources();
 		int buffer = AL10.alGenBuffers();
+		if (AL.getCapabilities().AL_SOFT_direct_channels) {
+			AL10.alSourcei(source, SOFTDirectChannels.AL_DIRECT_CHANNELS_SOFT, AL10.AL_TRUE);
+		}
 		memory.sourceSet.add(source);
 		memory.bufferSet.add(buffer);
 		AL10.alBufferData(buffer, data.getChannels() > 1 ? AL10.AL_FORMAT_STEREO16 : AL10.AL_FORMAT_MONO16, data.getPCM(), data.getSampleRate());
@@ -133,6 +137,9 @@ public class ALAudioBackend implements AudioBackend {
 		backgroundMusic = music;
 		backgroundMusic.setPlayed(0);
 		ALMusic alMusic = (ALMusic) music.getBackendData();
+		if (AL.getCapabilities().AL_SOFT_direct_channels) {
+			AL10.alSourcei(alMusic.getSource(), SOFTDirectChannels.AL_DIRECT_CHANNELS_SOFT, AL10.AL_TRUE);
+		}
 		AudioStream stream = music.getAudioStream();
 		stream.rewind();
 		int[] buffers = alMusic.getBuffers();

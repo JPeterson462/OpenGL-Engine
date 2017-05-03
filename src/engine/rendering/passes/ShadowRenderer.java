@@ -14,7 +14,7 @@ import engine.shadows.ShadowBox;
 
 public class ShadowRenderer {
 	
-	private static final int SHADOW_MAP_SIZE = 2048;
+	private static final int SHADOW_MAP_SIZE = 4096;
 	
 	private Framebuffer shadowBuffer;
 	
