@@ -69,13 +69,13 @@
 	Text alignment
 5-3-17:
 	Fixed shadow distortion
-	
-Upcoming:
-	Casting shadows on other entities
 	Lighting animated models
 	Normal Mapped animated models
+	Shadow mapping on water
 	
-	Better lighting (deferred lighting)
+Upcoming:
+
+	Casting shadows on other entities
 	
 ========================================================================
 	
@@ -95,14 +95,12 @@ https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
 
 - Lock mouse to center of screen and handle movement left or right before recentering
 
-- Fix particle rendering
+- Lighting water
+- Fix particle rendering (check computed view matrix)
 - Shadows to other entities
-- Soft shadows (Shadows distorted depending on rotation towards shadow)
+- Soft shadows
 - Music on its own thread?
 - Fix PostProcessingRenderer (doesn't render to FBO, just straight to screen)
-
-- Lighting animated models
-- Normal Mapped animated models
 
 - Remove awful text renderer workaround to glBufferSubData
 - rendering to framebuffer for expensive renders like fonts?

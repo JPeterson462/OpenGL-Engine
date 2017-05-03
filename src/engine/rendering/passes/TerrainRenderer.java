@@ -32,9 +32,10 @@ public class TerrainRenderer {
 		shader.uploadInt("shadowMap", 5);
 	}
 	
-	public void render(Camera camera, Light[] lights, int lightCount, int maxLights, Vector3f skyColor, Vector4f clipPlane, Matrix4f shadowMapMatrix, Texture shadowDepthMap) {
+	public void render(Camera camera, Light[] lights, int lightCount, int maxLights, Vector3f skyColor, Vector4f clipPlane, Matrix4f shadowMapMatrix, Texture shadowDepthMap, float ambientLightFactor) {
 //		engine.setCulling(false);
 		shader.bind();
+		shader.uploadFloat("ambientLightFactor", ambientLightFactor);
 		camera.uploadTo(shader);
 		shader.uploadVector("plane", clipPlane);
 		for (int i = 0; i < maxLights; i++) {

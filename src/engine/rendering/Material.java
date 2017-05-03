@@ -61,5 +61,37 @@ public class Material {
 	public void setReflectivity(float reflectivity) {
 		this.reflectivity = reflectivity;
 	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof Material)) {
+			return false;
+		}
+		Material m = (Material) o;
+		if (m.reflectivity != reflectivity) {
+			return false;
+		}
+		if (m.shineDamper != shineDamper) {
+			return false;
+		}
+		if (m.diffuseTexture == null && diffuseTexture != null) {
+			return false;
+		}
+		if (m.diffuseTexture != null && diffuseTexture == null) {
+			return false;
+		}
+		if (diffuseTexture != null && !m.diffuseTexture.equals(diffuseTexture)) {
+			return false;
+		}
+		if (m.normalTexture == null && normalTexture != null) {
+			return false;
+		}
+		if (m.normalTexture != null && normalTexture == null) {
+			return false;
+		}
+		if (normalTexture != null && !m.normalTexture.equals(normalTexture)) {
+			return false;
+		}
+		return true;
+	}
 
 }

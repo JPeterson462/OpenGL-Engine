@@ -64,10 +64,11 @@ public class FirstPersonCameraController {
 		}
 		body.getLinearVelocity().set(totalMovement);
 		if (mouseX >= 0 && mouseY >= 0) {
-			float maxRotation = (float) 90 * mouseSensitivity * delta;
+			float maxRotationX = (float) 90 * mouseSensitivity * delta;
+			float maxRotationY = (float) 45 * mouseSensitivity * delta;
 			float dx = mouse.getMouseX() - mouseX, dy = mouse.getMouseY() - mouseY;
-			camera.setPitch(camera.getPitch() + maxRotation * dy);
-			camera.setYaw(camera.getYaw() + maxRotation * dx);
+			camera.setPitch(camera.getPitch() + maxRotationY * dy);
+			camera.setYaw(camera.getYaw() + maxRotationX * dx);
 		}
 		
 		// START TEST PHYSICS

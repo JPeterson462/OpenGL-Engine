@@ -7,57 +7,93 @@ import org.joml.Vector4f;
 import engine.Camera;
 import engine.Engine;
 import engine.Entity;
+import engine.rendering.Geometry;
+import engine.rendering.Light;
+import engine.rendering.Material;
 import engine.rendering.Shader;
 
-/**
- * 
- * This class deals with rendering an animated entity. Nothing particularly new
- * here. The only exciting part is that the joint transforms get loaded up to
- * the shader in a uniform array.
- * 
- * @author Karl
- *
- */
 public class AnimatedModelRenderer {
 
+	private Shader regularShader, normalShader;
+	
+	private Geometry lastGeometry;
+	
 	private Shader shader;
 	
-	/**
-	 * Initializes the shader program used for rendering animated models.
-	 */
-	public AnimatedModelRenderer(Shader shader) {
-		this.shader = shader;
-		shader.bind();
-		shader.uploadInt("diffuseMap", 0);
+	public AnimatedModelRenderer(Shader regularShader, Shader normalShader) {
+		this.regularShader = regularShader;
+		regularShader.bind();
+		regularShader.uploadInt("diffuseMap", 0);
+		this.normalShader = normalShader;
+		normalShader.bind();
+		normalShader.uploadInt("diffuseMap", 0);
+		normalShader.uploadInt("normalMap", 1);
 	}
-
-	/**
-	 * Renders an animated entity. The main thing to note here is that all the
-	 * joint transforms are loaded up to the shader to a uniform array. Also 5
-	 * attributes of the VAO are enabled before rendering, to include joint
-	 * indices and weights.
-	 * 
-	 * @param entity
-	 *            - the animated entity to be rendered.
-	 * @param camera
-	 *            - the camera used to render the entity.
-	 * @param lightDir
-	 *            - the direction of the light in the scene.
-	 */
-	public void render(Entity entity, Camera camera, Vector3f lightDir, Engine engine, Vector4f plane) {
+	
+	public void bind(boolean normalMapped, Engine engine, Camera camera, Vector3f lightDir, Vector3f skyColor, Vector4f plane, float ambientLightFactor) {
+		if (normalMapped) {
+			bind(normalShader, engine, camera, lightDir, skyColor, plane, ambientLightFactor);
+		} else {
+			bind(regularShader, engine, camera, lightDir, skyColor, plane, ambientLightFactor);
+		}
+	}
+	
+	private void bind(Shader shader, Engine engine, Camera camera, Vector3f lightDir, Vector3f skyColor, Vector4f plane, float ambientLightFactor) {
+		this.shader = shader;
 		engine.getRenderingBackend().setBlending(false);
 		engine.getRenderingBackend().setDepth(true);
 		prepare(camera, lightDir);
-		shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
 		shader.uploadVector("plane", plane);
-		entity.getAnimatedModel().getTexture().bind(0);
-		entity.getAnimatedModel().getModel().bind();
+		shader.uploadVector("skyColor", skyColor);
+		shader.uploadFloat("ambientLightFactor", ambientLightFactor);
+		lastMaterial = null;
+		lastGeometry = null;
+	}
+	
+	public void useGeometry(Geometry geometry) {
+		if (lastGeometry != null) {
+			lastGeometry.unbind();
+		}
+		if (geometry != null) {
+			geometry.bind();
+		}
+		lastGeometry = geometry;
+	}
+	
+	private Material lastMaterial;
+
+	public void render(Entity entity, Light[] lights, int lightCount, boolean normalMapped) {
+		for (int i = 0; i < SceneRenderer.MAX_LIGHTS; i++) {
+			if (i < lightCount) {
+				shader.uploadVector("lightPosition[" + i + "]", lights[i].getPosition());
+				shader.uploadVector("lightColor[" + i + "]", lights[i].getColor());
+				shader.uploadVector("attenuation[" + i + "]", lights[i].getAttenuation());
+			} else {
+				shader.uploadVector("lightPosition[" + i + "]", new Vector3f());
+				shader.uploadVector("lightColor[" + i + "]", new Vector3f());
+				shader.uploadVector("attenuation[" + i + "]", new Vector3f(1, 0, 0));
+			}
+		}
+		
+		shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
+		Material material = entity.getAnimatedModel().getMaterial();
+		if (lastMaterial == null || !material.equals(lastMaterial)) {
+			material.getDiffuseTexture().bind(0);
+			if (normalMapped) {
+				material.getNormalTexture().bind(1);
+			}
+			shader.uploadFloat("materialShineDamper", material.getShineDamper());
+			shader.uploadFloat("materialReflectivity", material.getReflectivity());
+		}
+		lastMaterial = material;		
 		Matrix4f[] jointTransforms = entity.getAnimatedModel().getJointTransforms();
 		for (int i = 0; i < jointTransforms.length; i++) {
 			uploadMatrix(i, jointTransforms[i]);
 		}
 		entity.getAnimatedModel().getModel().renderGeometry();
-		entity.getAnimatedModel().getModel().unbind();
+	}
+	
+	public void unbind(Engine engine) {
 		finish();
 		engine.getRenderingBackend().setBlending(true);
 		engine.getRenderingBackend().setAdditiveBlending(false);
@@ -67,25 +103,12 @@ public class AnimatedModelRenderer {
 		shader.uploadMatrix("jointTransforms[" + i + "]", matrix);
 	}
 
-	/**
-	 * Starts the shader program and loads up the projection view matrix, as
-	 * well as the light direction. Enables and disables a few settings which
-	 * should be pretty self-explanatory.
-	 * 
-	 * @param camera
-	 *            - the camera being used.
-	 * @param lightDir
-	 *            - the direction of the light in the scene.
-	 */
 	private void prepare(Camera camera, Vector3f lightDir) {
 		shader.bind();
-		shader.uploadMatrix("projectionViewMatrix", camera.getProjectionViewMatrix());
+		camera.uploadTo(shader);
 		shader.uploadVector("lightDirection", lightDir);
 	}
 
-	/**
-	 * Stops the shader program after rendering the entity.
-	 */
 	private void finish() {
 		shader.unbind();
 	}

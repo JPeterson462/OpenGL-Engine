@@ -1,7 +1,6 @@
 package test;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -226,19 +225,19 @@ public class TestApplication {
 				
 				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
 				
-				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
+				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
+						Assets.newShader("fragmentSkeletalNormals.glsl", "vertexSkeletalNormals.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
 				
 				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
-				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), engine.getResource("textures/animatedDiffuse.png"));
+				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), Assets.newMaterial("animatedDiffuse.png"));
 				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
 						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
 				sceneRenderer.addLight(sun);
 				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-				sceneRenderer.addLight(new Light(new Vector3f(370, 17, -300), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-				//				sceneRenderer.addLight(new Light(new Vector3f(293, 7, -305), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
-				sceneRenderer.addLight(new Light(new Vector3f(10, 10, 10), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
+				sceneRenderer.addLight(new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
+				sceneRenderer.addLight(new Light(new Vector3f(45, 40, 47), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
 //				sceneRenderer.addEntity(entity);
 				
 //				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
@@ -263,18 +262,19 @@ public class TestApplication {
 				Entity lamp3 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
 				lamp3.setPosition(new Vector3f(293, terrain.getHeightAt(293, -305), -305));
 
-//				Model crate = Assets.newModel("crate.obj", true);
-//				Material crateMaterial = Assets.newMaterial("crate.png", "crateNormal.png");
-//				crateMaterial.setReflectivity(0.5f);
-//				crateMaterial.setShineDamper(10);
-//				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices());
+				Model crate = Assets.newModel("crate.obj", true);
+				Material crateMaterial = Assets.newMaterial("crate.png", "crateNormal.png");
+				crateMaterial.setReflectivity(0.5f);
+				crateMaterial.setShineDamper(10);
+				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices(), true);
 
 				sceneRenderer.addEntity(lamp1);
 				sceneRenderer.addEntity(lamp2);
 				sceneRenderer.addEntity(lamp3);
-//				Entity crateEntity = new Entity(crate, crateMaterial, crateGeometry, 1, 1, 0, 0);
-//				crateEntity.setScale(0.1f);
-//				sceneRenderer.addEntity(crateEntity);
+				Entity crateEntity = new Entity(crate, crateMaterial, crateGeometry, 1, 1, 0, 0);
+				crateEntity.setPosition(new Vector3f(10, 30, 10));
+				crateEntity.setScale(0.1f);
+				sceneRenderer.addEntity(crateEntity);
 
 				Model tree = Assets.newModel("tree.obj", true);
 				Material treeMaterial = Assets.newMaterial("tree.png");
@@ -363,8 +363,8 @@ public class TestApplication {
 			textRenderer.render(textBuffer, e);
 			textRenderer.unbind(e);
 			
-//			particleRenderer.update(delta);
-//			particleRenderer.render(e);
+			particleRenderer.update(delta);
+			particleRenderer.render(e);
 			guiRenderer.render(e);
 //			textRenderer.render(e);
 		});

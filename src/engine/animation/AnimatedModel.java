@@ -3,7 +3,7 @@ package engine.animation;
 import org.joml.Matrix4f;
 
 import engine.rendering.Geometry;
-import engine.rendering.Texture;
+import engine.rendering.Material;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class AnimatedModel {
 	
 	// skin
 	private final Geometry model;
-	private final Texture texture;
+	private final Material material;
 
 	// skeleton
 	private final Joint rootJoint;
@@ -43,8 +43,7 @@ public class AnimatedModel {
 	 *            includes vertex positions, normals, texture coords, IDs of
 	 *            joints that affect each vertex, and their corresponding
 	 *            weights.
-	 * @param texture
-	 *            - the diffuse texture for the entity.
+	 * @param material
 	 * @param rootJoint
 	 *            - the root joint of the joint hierarchy which makes up the
 	 *            "skeleton" of the entity.
@@ -53,9 +52,9 @@ public class AnimatedModel {
 	 *            this entity.
 	 * 
 	 */
-	public AnimatedModel(Geometry model, Texture texture, Joint rootJoint, int jointCount) {
+	public AnimatedModel(Geometry model, Material material, Joint rootJoint, int jointCount) {
 		this.model = model;
-		this.texture = texture;
+		this.material = material;
 		this.rootJoint = rootJoint;
 		this.jointCount = jointCount;
 		this.animator = new Animator(this);
@@ -72,8 +71,8 @@ public class AnimatedModel {
 	/**
 	 * @return The diffuse texture for this entity.
 	 */
-	public Texture getTexture() {
-		return texture;
+	public Material getMaterial() {
+		return material;
 	}
 
 	/**

@@ -17,6 +17,7 @@ import engine.rendering.Geometry;
 import engine.rendering.Light;
 import engine.rendering.Material;
 import engine.rendering.Shader;
+import engine.shadows.ShadowBox;
 import utils.MousePicker;
 
 public class SceneRenderer {
@@ -30,6 +31,8 @@ public class SceneRenderer {
 	private HashMap<Geometry, ArrayList<Entity>> normalMappedEntityMap = new HashMap<>();
 
 	private HashMap<Geometry, ArrayList<Entity>> defaultAnimatedEntityMap = new HashMap<>();
+
+	private HashMap<Geometry, ArrayList<Entity>> normalMappedAnimatedEntityMap = new HashMap<>();
 	
 	private TerrainRenderer terrainRenderer;
 	
@@ -43,7 +46,9 @@ public class SceneRenderer {
 	
 	private AnimatedModelRenderer animatedModelRenderer;
 	
-	private static final int MAX_LIGHTS = 4;
+	public static final float AMBIENT_LIGHT = 0.4f;
+	
+	public static final int MAX_LIGHTS = 4;
 	
 	private Light[] lights = new Light[MAX_LIGHTS];
 	
@@ -78,7 +83,12 @@ public class SceneRenderer {
 	
 	public void addEntity(Entity entity) {
 		if (entity.isAnimated()) {
-			addEntity(entity, defaultAnimatedEntityMap);
+			System.out.println(entity + " " + entity.getMaterial());
+			if (entity.getMaterial().hasNormalTexture()) {
+				addEntity(entity, normalMappedAnimatedEntityMap);
+			} else {
+				addEntity(entity, defaultAnimatedEntityMap);
+			}
 		} else {
 			if (entity.getMaterial().hasNormalTexture()) {
 				addEntity(entity, normalMappedEntityMap);
@@ -89,27 +99,30 @@ public class SceneRenderer {
 	}
 	
 	private void addEntity(Entity entity, HashMap<Geometry, ArrayList<Entity>> entityMap) {
-		ArrayList<Entity> entities = entityMap.get(entity.getGeometry());
+		Geometry geometry = entity.isAnimated() ? entity.getAnimatedModel().getModel() : entity.getGeometry();
+		ArrayList<Entity> entities = entityMap.get(geometry);
 		if (entities != null) {
 			entities.add(entity);
 		} else {
 			entities = new ArrayList<>();
 			entities.add(entity);
-			entityMap.put(entity.getGeometry(), entities);
+			entityMap.put(geometry, entities);
 		}
 	}
 	
-	private void renderAnimated(HashMap<Geometry, ArrayList<Entity>> entityMap, Vector3f lightDir, Engine engine, Vector4f plane) {
-		for (ArrayList<Entity> entities : entityMap.values()) {
-			for (Entity entity : entities) {
-				if (entity.isAnimated()) {
-					animatedModelRenderer.render(entity, camera, lightDir, engine, plane);
-				}
-			}
+	private void renderAnimated(boolean normalMapped, HashMap<Geometry, ArrayList<Entity>> entityMap, Vector3f lightDir, Engine engine, Vector4f plane, Vector3f skyColor, float ambientLightFactor) {
+		animatedModelRenderer.bind(normalMapped, engine, camera, lightDir, skyColor, plane, ambientLightFactor);
+		for (Map.Entry<Geometry, ArrayList<Entity>> entry : entityMap.entrySet()) {
+			animatedModelRenderer.useGeometry(entry.getKey());
+			for (Entity entity : entry.getValue()) {
+				animatedModelRenderer.render(entity, lights, lightCount, normalMapped);
+			}			
 		}
+		animatedModelRenderer.useGeometry(null);
+		animatedModelRenderer.unbind(engine);
 	}
 	
-	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix, Vector3f skyColor) {
+	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix, Vector3f skyColor, float ambientLightFactor) {
 		shader.bind();
 		if (normalMaps) {
 			shader.uploadInt("diffuseTexture", 0);
@@ -137,6 +150,7 @@ public class SceneRenderer {
 			}
 		}
 		shader.uploadVector("skyColor", skyColor);
+		shader.uploadFloat("ambientLightFactor", ambientLightFactor);
 		Geometry lastGeometry = null;
 		Material lastMaterial = null;
 //		boolean hasTransparency = false;
@@ -176,11 +190,12 @@ public class SceneRenderer {
 		shader.unbind();
 	}
 	
-	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta, Vector3f skyColor) {
-		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap());
-		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix, skyColor);
-		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix, skyColor);
-		renderAnimated(defaultAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane);
+	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta, Vector3f skyColor, float ambientLightFactor) {
+		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap(), ambientLightFactor);
+		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix, skyColor, ambientLightFactor);
+		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix, skyColor, ambientLightFactor);
+		renderAnimated(false, defaultAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane, skyColor, ambientLightFactor);
+		renderAnimated(true, normalMappedAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane, skyColor, ambientLightFactor);
 		skyboxRenderer.render(camera, skyColor);
 	}
 	
@@ -217,9 +232,12 @@ public class SceneRenderer {
 				geometry.unbind();
 			}
 		});
+		shadowRenderer.computeShadowSpaceMatrix();
 		postProcessingRenderer.render(engine, () -> {
 			skyboxRenderer.update(camera, delta);
-			waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> renderScene(plane, sendViewMatrix, engine, delta, fogColor), delta);
+			waterRenderer.render(camera, engine, (plane, sendViewMatrix) -> 
+					renderScene(plane, sendViewMatrix, engine, delta, fogColor, (1 - skyboxRenderer.getBlendFactor()) * AMBIENT_LIGHT), 
+			delta, shadowRenderer.getShadowMap(), shadowRenderer.getToShadowSpaceMatrix(), ShadowBox.SHADOW_DISTANCE, ShadowRenderer.SHADOW_MAP_SIZE);
 		});
 	}
 	

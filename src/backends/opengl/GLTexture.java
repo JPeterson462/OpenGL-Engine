@@ -21,5 +21,9 @@ public class GLTexture {
 	public void unbind() {
 		GL11.glBindTexture(target, 0);
 	}
+	
+	public boolean equals(Object o) {
+		return o instanceof GLTexture && ((GLTexture) o).textureId == textureId;
+	}
 
 }

@@ -104,6 +104,9 @@ public class Entity {
 	}
 	
 	public Material getMaterial() {
+		if (isAnimated()) {
+			return animatedModel.getMaterial();
+		}
 		return material;
 	}
 

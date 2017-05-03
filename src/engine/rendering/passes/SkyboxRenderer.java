@@ -85,8 +85,11 @@ public class SkyboxRenderer {
 		return smoothFogColor;
 	}
 	
+	public float getBlendFactor() {
+		return blendFactor;
+	}
+	
 	public void render(Camera camera, Vector3f fogColor) {
-		
 		fogColor.lerp(nightFogColor, blendFactor, smoothFogColor);
 		shader.bind();
 		shader.uploadMatrix("viewMatrix", camera.getViewMatrix());

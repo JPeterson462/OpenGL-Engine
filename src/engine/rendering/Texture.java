@@ -46,5 +46,9 @@ public class Texture {
 		if (backendData instanceof GLTexture)
 			((GLTexture) backendData).unbind();
 	}
+	
+	public boolean equals(Object o) {
+		return o instanceof Texture && ((Texture) o).getBackendData().equals(backendData);
+	}
 
 }

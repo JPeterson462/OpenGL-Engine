@@ -14,7 +14,7 @@ import engine.shadows.ShadowBox;
 
 public class ShadowRenderer {
 	
-	private static final int SHADOW_MAP_SIZE = 4096;
+	public static final int SHADOW_MAP_SIZE = 4096;
 	
 	private Framebuffer shadowBuffer;
 	
@@ -32,6 +32,8 @@ public class ShadowRenderer {
 	
 	private float nearPlane;
 	
+	private Matrix4f shadowSpaceMatrix = new Matrix4f();
+	
 	public ShadowRenderer(Shader shader, Engine engine, Camera camera) {
 		nearPlane = engine.getSettings().nearPlane;
 		this.shader = shader;
@@ -41,8 +43,12 @@ public class ShadowRenderer {
 		shader.uploadInt("modelTexture", 0);
 	}
 	
+	public void computeShadowSpaceMatrix() {
+		shadowSpaceMatrix.set(offset).mul(projectionViewMatrix);
+	}
+	
 	public Matrix4f getToShadowSpaceMatrix() {
-		return new Matrix4f(offset).mul(projectionViewMatrix);
+		return shadowSpaceMatrix;
 	}
 	
 	public void render(Vector3f sunPosition, EntityRender entityRenderCall) {

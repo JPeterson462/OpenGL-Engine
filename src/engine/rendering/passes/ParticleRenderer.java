@@ -110,7 +110,6 @@ public class ParticleRenderer {
 		modelViewMatrix.identity();
 		Matrix4f viewMatrix = camera.getViewMatrix();
 		modelMatrix.identity();
-		modelMatrix.translate(particle.getPosition());
 		modelMatrix.m00(viewMatrix.m00());
 		modelMatrix.m01(viewMatrix.m10());
 		modelMatrix.m02(viewMatrix.m20());
@@ -120,6 +119,7 @@ public class ParticleRenderer {
 		modelMatrix.m20(viewMatrix.m02());
 		modelMatrix.m21(viewMatrix.m12());
 		modelMatrix.m22(viewMatrix.m22());
+		modelMatrix.translate(particle.getPosition());
 		modelMatrix.rotate((float) particle.getRotation(), new Vector3f(0, 0, 1));
 		modelMatrix.scale(particle.getScale(), particle.getScale(), particle.getScale());
 		viewMatrix.mul(modelMatrix, modelViewMatrix);

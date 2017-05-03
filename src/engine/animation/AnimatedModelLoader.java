@@ -14,7 +14,7 @@ import collada.data.MeshData;
 import collada.data.SkeletonData;
 import engine.Assets;
 import engine.rendering.Geometry;
-import engine.rendering.Texture;
+import engine.rendering.Material;
 import engine.rendering.Vertex;
 
 public class AnimatedModelLoader {
@@ -28,24 +28,12 @@ public class AnimatedModelLoader {
 	 *            - the file containing the data for the entity.
 	 * @return The animated entity (no animation applied though)
 	 */
-	public static AnimatedModel loadEntity(InputStream modelFile, InputStream textureFile) {
+	public static AnimatedModel loadEntity(InputStream modelFile, Material material) {
 		AnimatedModelData entityData = ColladaLoader.loadColladaModel(modelFile, AnimatedModel.MAX_WEIGHTS, "Armature");
 		Geometry model = createGeometry(entityData.getMeshData());
-		Texture texture = loadTexture(textureFile);
 		SkeletonData skeletonData = entityData.getJointsData();
 		Joint headJoint = createJoints(skeletonData.headJoint);
-		return new AnimatedModel(model, texture, headJoint, skeletonData.jointCount);
-	}
-
-	/**
-	 * Loads up the diffuse texture for the model.
-	 * 
-	 * @param textureFile
-	 *            - the texture file.
-	 * @return The diffuse texture.
-	 */
-	private static Texture loadTexture(InputStream textureFile) {
-		return Assets.newTexture(textureFile);
+		return new AnimatedModel(model, material, headJoint, skeletonData.jointCount);
 	}
 
 	/**

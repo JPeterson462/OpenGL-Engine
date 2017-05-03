@@ -5,15 +5,19 @@ uniform sampler2D refractionTexture;
 uniform sampler2D dudvMap;
 uniform sampler2D normalMap;
 uniform sampler2D depthMap;
+uniform sampler2D shadowMap;
 uniform vec3 lightColor;
 uniform vec2 viewPlane;
 
 uniform float moveFactor;
 
+uniform float shadowMapSize;
+
 in vec4 pass_ClipSpace;
 in vec2 pass_TexCoord;
 in vec3 pass_ToCameraVector;
 in vec3 pass_FromLightVector;
+in vec4 pass_ShadowCoords;
 
 out vec4 out_Color;
 
@@ -22,7 +26,23 @@ const float shineDamper = 20.0;
 const float reflectivity = 0.5;
 const float depthFactor = 5.0;
 
+const int pcfCount = 2;
+const float totalTexels = (pcfCount * 2.0 + 1.0) * (pcfCount * 2.0 + 1.0);
+
 void main(void) {
+	float texelSize = 1.0 / shadowMapSize;
+	float total = 0.0;
+	for (int x = -pcfCount; x <= pcfCount; x++) {
+		for (int y = -pcfCount; y <= pcfCount; y++) {
+			float objectNearestLight = texture2D(shadowMap, pass_ShadowCoords.xy + vec2(x, y) * texelSize).r;
+			if (pass_ShadowCoords.z > objectNearestLight + 0.002) {
+				total += 1.0;
+			}
+		}
+	}
+	total /= totalTexels;
+	float lightFactor = 1.0 - (total * pass_ShadowCoords.w * 0.25); // Only render the shadow partially (not a solid object)
+	
 	vec2 ndc = (pass_ClipSpace.xy / pass_ClipSpace.w) / 2.0 + 0.5;
 	vec2 refractTexCoord = vec2(ndc.x, ndc.y);
 	vec2 reflectTexCoord = vec2(ndc.x, -ndc.y);
@@ -57,4 +77,5 @@ void main(void) {
 	out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights, 0.0);
 	//out_Color.a = clamp(waterDepth / depthFactor, 0.0, 1.0);
 	out_Color.a = clamp(waterDepth / depthFactor, -0.01, 0.99) + 0.01;
+	out_Color = out_Color * vec4(vec3(lightFactor), 1.0);
 }
