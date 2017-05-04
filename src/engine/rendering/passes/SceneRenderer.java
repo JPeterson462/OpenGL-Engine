@@ -78,18 +78,18 @@ public class SceneRenderer {
 		this.postProcessingRenderer = postProcessingRenderer;
 		this.animatedModelRenderer = animatedModelRenderer;
 		defaultFramebuffer = engine.getRenderingBackend().createFramebuffer(engine.getSettings().width, engine.getSettings().height, 3, false);
-		lightFramebuffer = engine.getRenderingBackend().createFramebuffer(engine.getSettings().width, engine.getSettings().height, 3, false);
+		lightFramebuffer = engine.getRenderingBackend().createFramebuffer(engine.getSettings().width, engine.getSettings().height, 1, false);
 		this.lightShader = lightShader;
 		this.shadowShader = shadowShader;
 		fullscreenQuad = Assets.newFullscreenQuad();
+		lightShader.bind();
+		lightShader.uploadInt("sceneDepthMap", 0);
+		lightShader.uploadInt("normalMap", 1);
+		lightShader.uploadInt("diffuseMap", 2);
+		lightShader.uploadInt("materialMap", 3);
 		shadowShader.bind();
-		shadowShader.uploadInt("sceneDepthMap", 0);
-		shadowShader.uploadInt("normalMap", 1);
-		shadowShader.uploadInt("diffuseMap", 2);
-		shadowShader.uploadInt("materialMap", 3);
-		shadowShader.uploadInt("lightDiffuseMap", 4);
-		shadowShader.uploadInt("lightDirectionMap0", 5);
-		shadowShader.uploadInt("lightDirectionMap1", 6);
+		shadowShader.uploadInt("lightDepthMap", 0);
+		shadowShader.uploadInt("lightDiffuseMap", 1);
 	}
 	
 	public void addLight(Light light) {
@@ -245,30 +245,36 @@ public class SceneRenderer {
 		Texture materialMap = defaultFramebuffer.getColorTexture(2);
 		lightFramebuffer.bind();
 		lightShader.bind();
-		camera.uploadTo(lightShader);
-		lights.forEach(light -> {
-			light.uploadTo(lightShader);
-			light.render();
-		});
-		lightShader.unbind();
-		lightFramebuffer.unbind();
-		Texture lightDiffuseMap = lightFramebuffer.getColorTexture(0);
-		Texture lightDirectionMap0 = lightFramebuffer.getColorTexture(1);
-		Texture lightDirectionMap1 = lightFramebuffer.getColorTexture(2);
-		shadowShader.bind();
-		camera.uploadTo(shadowShader);
-		shadowShader.uploadVector("cameraPosition", camera.getCenter());
 		defaultDepthMap.bind(0);
 		normalMap.bind(1);
 		diffuseMap.bind(2);
 		materialMap.bind(3);
-		lightDiffuseMap.bind(4);
-		lightDirectionMap0.bind(5);
-		lightDirectionMap1.bind(6);
+		engine.getRenderingBackend().setBlending(true);
+		engine.getRenderingBackend().setAdditiveBlending(true);
+		camera.uploadTo(lightShader);
+		lightShader.uploadVector("ambientLight", new Vector4f(1, 1, 1, 0.5f));
+		fullscreenQuad.bind();
+		fullscreenQuad.renderGeometry();
+		fullscreenQuad.unbind();
+		lights.forEach(light -> {
+			light.uploadTo(lightShader);
+			light.render();
+		});
+		engine.getRenderingBackend().setAdditiveBlending(false);
+		lightShader.unbind();
+		lightFramebuffer.unbind();
+		Texture lightDepthMap = lightFramebuffer.getDepthTexture();
+		Texture lightDiffuseMap = lightFramebuffer.getColorTexture(0);
+		shadowShader.bind();
+		camera.uploadTo(shadowShader);
+		shadowShader.uploadVector("cameraPosition", camera.getCenter());
+		lightDepthMap.bind(0);
+		lightDiffuseMap.bind(1);
 		fullscreenQuad.bind();
 		fullscreenQuad.renderGeometry();
 		fullscreenQuad.unbind();
 		shadowShader.unbind();
+//		lightFramebuffer.copyTo(engine.getRenderingBackend().getDefaultBuffer());
 //		engine.getRenderingBackend().setAdditiveBlending(false);
 	}
 	

@@ -152,7 +152,7 @@ public class TestApplication {
 				soundtrack = Assets.newSoundtrack("AvengedSevenfold.zip", AudioFormat.VORBIS);
 				
 				font = FontImporter.loadFont("Consolas.fnt", e);
-				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
+				textRenderer = new TextRenderer(Assets.newShader("gui/fragmentText.glsl", "gui/vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
 				textBuffer = new TextBuffer("Testing Renderer", new Vector2f(50, 50), new Vector2f(500, 100), new Vector4f(1, 1, 1, 1), 24, font, e, 36, TextAlign.LEFT);
 
 				particleRenderer = new ParticleRenderer(Assets.newInstancedShader("fragmentParticle.glsl", "vertexParticle.glsl", 
@@ -198,14 +198,14 @@ public class TestApplication {
 				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"), 
 						Assets.newTexture("waterNormal.png"), sun);
 				
-				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
+				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("lighting/fragmentShadow.glsl", "lighting/vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
 				
 //				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
 //				i1.getPosition().set(0, 0);
 //				i1.getSize().set(640, 360);
 				
 				HashMap<Class<?>, WidgetRenderer> renderers = new HashMap<>();
-				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("fragmentGui.glsl", "vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
+				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("gui/fragmentGui.glsl", "gui/vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
 				renderers.put(TextRenderer.class, textRenderer);
 				
 				Container container = new Container("container0");			
@@ -237,8 +237,8 @@ public class TestApplication {
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
 						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer, engine,
-						Assets.newShader("fragmentLights.glsl", "vertexLights.glsl", VertexTemplate.POSITION),
-						Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION));
+						Assets.newShader("lighting/fragmentLights.glsl", "lighting/vertexLights.glsl", VertexTemplate.POSITION),
+						Assets.newShader("lighting/fragmentShadow.glsl", "lighting/vertexShadow.glsl", VertexTemplate.POSITION));
 //				sceneRenderer.addLight(sun);
 //				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 //				sceneRenderer.addLight(new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
@@ -254,7 +254,7 @@ public class TestApplication {
 //				sceneRenderer.addEntity(entity);
 				
 				sceneRenderer.addLight(new PointLight(new Vector4f(1, 1, 1, 1), new Vector3f(0, 0, 0), 30, e));
-				sceneRenderer.addLight(new AmbientLight(new Vector4f(1, 1, 1, 0.5f)));
+//				sceneRenderer.addLight(new AmbientLight(new Vector4f(1, 1, 1, 0.5f)));
 				
 				Entity ae = new Entity(animatedModel);
 				ae.setPosition(new Vector3f(45, 35, 45));
@@ -294,7 +294,7 @@ public class TestApplication {
 				Material treeMaterial = Assets.newMaterial("tree.png");
 				Geometry treeGeometry = Assets.newGeometry(tree);
 				
-				int entities = 500;
+				int entities = 1500;//500;
 				System.out.println("Rendering " + (entities * 2) + " entities");
 				
 				Random random = new Random();

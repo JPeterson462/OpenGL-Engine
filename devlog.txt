@@ -72,16 +72,12 @@
 	Lighting animated models
 	Normal Mapped animated models
 	Shadow mapping on water
+	Started deferred rendering, need to fix the final computation
 	
 Upcoming:
 
 	Casting shadows on skeletal animation entities
-	
-*	1. Add Polygon Generation (Cones, Spheres)
-	2. Render Scene to Framebuffer0
-	3. Render Light geometry to Framebuffer1
-	4. Combine Framebuffer0 and Framebuffer1
-	
+
 - Render all geometry to a framebuffer with [ Depth0, Normals, Material, Diffuse ]
 - Render all light geometry to a framebuffer with [ Depth1, Diffuse ]
 - Render the two framebuffers together to combine lights/shadows into a final scene buffer
