@@ -49,11 +49,5 @@ public class Framebuffer {
 			((GLFramebuffer) backendData).unbind();
 		}
 	}
-	
-	public void copyTo(Framebuffer framebuffer) {
-		if (backendData instanceof GLFramebuffer) {
-			((GLFramebuffer) backendData).copyTo((GLFramebuffer) framebuffer.backendData);
-		}
-	}
 
 }

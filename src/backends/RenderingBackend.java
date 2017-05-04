@@ -29,8 +29,6 @@ public interface RenderingBackend {
 	
 	public void setAdditiveBlending(boolean enabled);
 	
-	public void setRewriteBlending(boolean enabled);
-	
 	public void setBackgroundColor(float red, float green, float blue);
 	
 	public void createDisplay(Settings settings, Keyboard keyboard, Mouse mouse, Engine engine);
@@ -40,8 +38,6 @@ public interface RenderingBackend {
 	public boolean isOpen();
 	
 	public void prepareContext();
-	
-	public Framebuffer getDefaultBuffer();
 	
 	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, boolean isStatic);
 	

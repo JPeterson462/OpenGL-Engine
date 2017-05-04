@@ -50,8 +50,6 @@ public class GLRenderingBackend implements RenderingBackend {
 	
 	private int windowWidth, windowHeight;
 	
-	private Framebuffer defaultFramebuffer;
-	
 	private class Point {
 		int x, y;
 	}
@@ -87,14 +85,6 @@ public class GLRenderingBackend implements RenderingBackend {
 	public void setAdditiveBlending(boolean enabled) {
 		if (enabled) {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-		} else {
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		}
-	}
-	
-	public void setRewriteBlending(boolean enabled) {
-		if (enabled) {
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ZERO);
 		} else {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		}
@@ -248,14 +238,6 @@ public class GLRenderingBackend implements RenderingBackend {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}
 
-	@Override
-	public Framebuffer getDefaultBuffer() {
-		if (defaultFramebuffer == null) {
-			defaultFramebuffer = new Framebuffer(new GLFramebuffer(0, windowWidth, windowHeight), (Texture) null);
-		}
-		return defaultFramebuffer;		
-	}
-	
 	@Override
 	public Geometry createGeometry(ArrayList<Vertex> vertices, ArrayList<Integer> indexList, boolean isStatic) {
 		return GLGeometryBuilder.createGeometry(vertices, indexList, memory, () -> checkError(), isStatic);

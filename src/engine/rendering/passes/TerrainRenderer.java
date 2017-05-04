@@ -5,7 +5,10 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import engine.Camera;
+import engine.rendering.Light;
 import engine.rendering.Shader;
+import engine.rendering.Texture;
+import engine.shadows.ShadowBox;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainTile;
 
@@ -26,13 +29,31 @@ public class TerrainRenderer {
 		shader.uploadInt("gTexture", 2);
 		shader.uploadInt("bTexture", 3);
 		shader.uploadInt("blendMapTexture", 4);
+		shader.uploadInt("shadowMap", 5);
 	}
 	
-	public void render(Camera camera, Vector4f clipPlane) {
+	public void render(Camera camera, Light[] lights, int lightCount, int maxLights, Vector3f skyColor, Vector4f clipPlane, Matrix4f shadowMapMatrix, Texture shadowDepthMap, float ambientLightFactor) {
 //		engine.setCulling(false);
 		shader.bind();
+		shader.uploadFloat("ambientLightFactor", ambientLightFactor);
 		camera.uploadTo(shader);
 		shader.uploadVector("plane", clipPlane);
+		for (int i = 0; i < maxLights; i++) {
+			if (i < lightCount) {
+				shader.uploadVector("lightPosition[" + i + "]", lights[i].getPosition());
+				shader.uploadVector("lightColor[" + i + "]", lights[i].getColor());
+				shader.uploadVector("attenuation[" + i + "]", lights[i].getAttenuation());
+			} else {
+				shader.uploadVector("lightPosition[" + i + "]", new Vector3f());
+				shader.uploadVector("lightColor[" + i + "]", new Vector3f());
+				shader.uploadVector("attenuation[" + i + "]", new Vector3f(1, 0, 0));
+			}
+		}
+		shader.uploadFloat("shadowDistance", ShadowBox.SHADOW_DISTANCE);
+		shader.uploadFloat("shadowMapSize", shadowDepthMap.getWidth());
+		shader.uploadMatrix("toShadowMapSpace", shadowMapMatrix);
+		shadowDepthMap.bind(5);
+		shader.uploadVector("skyColor", skyColor);
 		TerrainTile[][] tiles = terrain.getTiles();
 		Vector3f player = camera.getCenter();
 		boolean found = false;

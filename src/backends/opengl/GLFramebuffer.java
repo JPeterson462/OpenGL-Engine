@@ -12,12 +12,6 @@ public class GLFramebuffer {
 	
 	private int[] buffers;
 	
-	protected GLFramebuffer(int fboId, int width, int height) {
-		this.fboId = fboId;
-		this.width = width;
-		this.height = height;
-	}
-	
 	public GLFramebuffer(GLMemory memory, int colorBuffers, int width, int height, int displayWidth, int displayHeight) {
 		fboId = GL30.glGenFramebuffers();
 		memory.framebufferSet.add(fboId);
@@ -59,13 +53,6 @@ public class GLFramebuffer {
 		if (GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
 			throw new IllegalStateException("Invalid Framebuffer");
 		}
-	}
-	
-	public void copyTo(GLFramebuffer glFramebuffer) {
-		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER_BINDING, fboId);
-		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER_BINDING, glFramebuffer.fboId);
-		GL30.glBlitFramebuffer(0, 0, width, height, 0, 0, glFramebuffer.width, glFramebuffer.height, GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST);
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 	}
 
 }

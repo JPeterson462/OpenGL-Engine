@@ -38,8 +38,6 @@ import engine.input.FirstPersonCameraController;
 import engine.input.Key;
 import engine.input.KeyboardListener;
 import engine.input.Modifiers;
-import engine.lights.AmbientLight;
-import engine.lights.PointLight;
 import engine.models.Model;
 import engine.models.ModelImporter;
 import engine.particles.BasicParticleEmitter;
@@ -75,7 +73,6 @@ import engine.text.TextBuffer;
 import engine.text.TextAlign;
 import engine.water.Water;
 import engine.water.WaterTile;
-import utils.Polygons;
 import utils.Screenshot;
 import utils.StringUtils;
 
@@ -152,7 +149,7 @@ public class TestApplication {
 				soundtrack = Assets.newSoundtrack("AvengedSevenfold.zip", AudioFormat.VORBIS);
 				
 				font = FontImporter.loadFont("Consolas.fnt", e);
-				textRenderer = new TextRenderer(Assets.newShader("gui/fragmentText.glsl", "gui/vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
+				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
 				textBuffer = new TextBuffer("Testing Renderer", new Vector2f(50, 50), new Vector2f(500, 100), new Vector4f(1, 1, 1, 1), 24, font, e, 36, TextAlign.LEFT);
 
 				particleRenderer = new ParticleRenderer(Assets.newInstancedShader("fragmentParticle.glsl", "vertexParticle.glsl", 
@@ -166,7 +163,7 @@ public class TestApplication {
 				entity = new Entity("models/tree.obj", "textures/tree.png", e, 1, 1, 0, 0);
 				entity.setScale(3);
 				shader = Assets.newShader("fragmentDefault.glsl", "vertexDefault.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL);
-				Shader normalMappedShader = Assets.newShader("fragmentNormals.glsl", "vertexDefault.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_TANGENT);
+				Shader normalMappedShader = Assets.newShader("fragmentNormals.glsl", "vertexNormals.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_TANGENT);
 
 				TerrainTexturePack pack = Assets.newTerrainTexturePack("grass.png", "dirt.png", "pinkFlowers.png", "path.png", "blendMap.png");
 				Shader terrainShader = Assets.newShader("fragmentTerrain.glsl", "vertexTerrain.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL);
@@ -188,7 +185,7 @@ public class TestApplication {
 //				tiles[1][1] = new TerrainTile(newGenerator(1, 1), e, pack);
 				terrain = new Terrain(tiles);
 
-				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexBasic.glsl", VertexTemplate.POSITION), e, camera);
+				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexSkybox.glsl", VertexTemplate.POSITION), e, camera);
 
 				Light sun = new Light(new Vector3f(100000, 100000, -100000), new Vector3f(1.3f, 1.3f, 1.3f));
 				
@@ -198,14 +195,14 @@ public class TestApplication {
 				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"), 
 						Assets.newTexture("waterNormal.png"), sun);
 				
-				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("lighting/fragmentShadow.glsl", "lighting/vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
+				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
 				
 //				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
 //				i1.getPosition().set(0, 0);
 //				i1.getSize().set(640, 360);
 				
 				HashMap<Class<?>, WidgetRenderer> renderers = new HashMap<>();
-				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("gui/fragmentGui.glsl", "gui/vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
+				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("fragmentGui.glsl", "vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
 				renderers.put(TextRenderer.class, textRenderer);
 				
 				Container container = new Container("container0");			
@@ -228,21 +225,19 @@ public class TestApplication {
 				
 				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
 				
-				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentDefault.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
-						Assets.newShader("fragmentDefault.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
+				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
+						Assets.newShader("fragmentSkeletalNormals.glsl", "vertexSkeletalNormals.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
 				
 				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
 				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), Assets.newMaterial("animatedDiffuse.png"));
 				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer, engine,
-						Assets.newShader("lighting/fragmentLights.glsl", "lighting/vertexLights.glsl", VertexTemplate.POSITION),
-						Assets.newShader("lighting/fragmentShadow.glsl", "lighting/vertexShadow.glsl", VertexTemplate.POSITION));
-//				sceneRenderer.addLight(sun);
-//				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-//				sceneRenderer.addLight(new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-//				sceneRenderer.addLight(new Light(new Vector3f(45, 40, 47), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
+						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
+				sceneRenderer.addLight(sun);
+				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
+				sceneRenderer.addLight(new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
+				sceneRenderer.addLight(new Light(new Vector3f(45, 40, 47), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
 //				sceneRenderer.addEntity(entity);
 				
 //				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
@@ -253,19 +248,10 @@ public class TestApplication {
 //				entity.setScale(10);
 //				sceneRenderer.addEntity(entity);
 				
-				sceneRenderer.addLight(new PointLight(new Vector4f(1, 1, 1, 1), new Vector3f(0, 0, 0), 30, e));
-//				sceneRenderer.addLight(new AmbientLight(new Vector4f(1, 1, 1, 0.5f)));
-				
 				Entity ae = new Entity(animatedModel);
 				ae.setPosition(new Vector3f(45, 35, 45));
 				sceneRenderer.addEntity(ae);
-				
-//				Entity sphere = new Entity(null, Assets.newMaterial("white.png"), Polygons.newSphere(e), 1, 1, 0, 0);
-				Entity sphere = new Entity(null, Assets.newMaterial("white.png"), Polygons.newCone(e, 10), 1, 1, 0, 0);
-				sphere.setPosition(new Vector3f(0, 0, 0));
-				sphere.setScale(5);
-				sceneRenderer.addEntity(sphere);
-				
+
 				Model lamp = Assets.newModel("lamp.obj", false);
 				Material lampMaterial = Assets.newMaterial("lamp.png");
 				Geometry lampGeometry = e.getRenderingBackend().createGeometry(lamp.getVertices(), lamp.getIndices(), true);
@@ -294,7 +280,7 @@ public class TestApplication {
 				Material treeMaterial = Assets.newMaterial("tree.png");
 				Geometry treeGeometry = Assets.newGeometry(tree);
 				
-				int entities = 1500;//500;
+				int entities = 500;
 				System.out.println("Rendering " + (entities * 2) + " entities");
 				
 				Random random = new Random();

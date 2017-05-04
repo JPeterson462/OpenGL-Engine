@@ -73,17 +73,13 @@
 	Normal Mapped animated models
 	Shadow mapping on water
 	Started deferred rendering, need to fix the final computation
+5-4-17:
+	Rolled back deferred rendering, need to take another approach on a development branch
 	
 Upcoming:
 
 	Casting shadows on skeletal animation entities
 
-- Render all geometry to a framebuffer with [ Depth0, Normals, Material, Diffuse ]
-- Render all light geometry to a framebuffer with [ Depth1, Diffuse ]
-- Render the two framebuffers together to combine lights/shadows into a final scene buffer
-
-- Post Processing
-	
 ========================================================================
 	
 Remaining Tutorials:
@@ -109,6 +105,7 @@ https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
 - Soft shadows
 - Music on its own thread?
 - Fix PostProcessingRenderer (doesn't render to FBO, just straight to screen)
+- shader imports
 
 - Remove awful text renderer workaround to glBufferSubData
 - rendering to framebuffer for expensive renders like fonts?

@@ -64,7 +64,7 @@ public class Vertex {
 		this.weights = weights;
 		template = VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT;
 	}
-	
+
 	public Vector3f getPosition() {
 		return position;
 	}
