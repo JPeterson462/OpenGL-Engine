@@ -75,7 +75,18 @@
 	
 Upcoming:
 
-	Casting shadows on other entities
+	Casting shadows on skeletal animation entities
+	
+*	1. Add Polygon Generation (Cones, Spheres)
+	2. Render Scene to Framebuffer0
+	3. Render Light geometry to Framebuffer1
+	4. Combine Framebuffer0 and Framebuffer1
+	
+- Render all geometry to a framebuffer with [ Depth0, Normals, Material, Diffuse ]
+- Render all light geometry to a framebuffer with [ Depth1, Diffuse ]
+- Render the two framebuffers together to combine lights/shadows into a final scene buffer
+
+- Post Processing
 	
 ========================================================================
 	
@@ -95,6 +106,7 @@ https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
 
 - Lock mouse to center of screen and handle movement left or right before recentering
 
+- Normal mapped terrain
 - Lighting water
 - Fix particle rendering (check computed view matrix)
 - Shadows to other entities

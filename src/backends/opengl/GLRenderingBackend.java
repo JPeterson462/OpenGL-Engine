@@ -89,6 +89,14 @@ public class GLRenderingBackend implements RenderingBackend {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		}
 	}
+	
+	public void setRewriteBlending(boolean enabled) {
+		if (enabled) {
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ZERO);
+		} else {
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		}
+	}
 
 	public void setBackgroundColor(float red, float green, float blue) {
 		GL11.glClearColor(red, green, blue, 0);

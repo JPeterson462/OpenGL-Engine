@@ -8,7 +8,6 @@ import engine.Camera;
 import engine.Engine;
 import engine.Entity;
 import engine.rendering.Geometry;
-import engine.rendering.Light;
 import engine.rendering.Material;
 import engine.rendering.Shader;
 
@@ -23,29 +22,27 @@ public class AnimatedModelRenderer {
 	public AnimatedModelRenderer(Shader regularShader, Shader normalShader) {
 		this.regularShader = regularShader;
 		regularShader.bind();
-		regularShader.uploadInt("diffuseMap", 0);
+		regularShader.uploadInt("diffuseTexture", 0);
 		this.normalShader = normalShader;
 		normalShader.bind();
-		normalShader.uploadInt("diffuseMap", 0);
-		normalShader.uploadInt("normalMap", 1);
+		normalShader.uploadInt("diffuseTexture", 0);
+		normalShader.uploadInt("normalTexture", 1);
 	}
 	
-	public void bind(boolean normalMapped, Engine engine, Camera camera, Vector3f lightDir, Vector3f skyColor, Vector4f plane, float ambientLightFactor) {
+	public void bind(boolean normalMapped, Engine engine, Camera camera, Vector3f lightDir, Vector4f plane) {
 		if (normalMapped) {
-			bind(normalShader, engine, camera, lightDir, skyColor, plane, ambientLightFactor);
+			bind(normalShader, engine, camera, lightDir, plane);
 		} else {
-			bind(regularShader, engine, camera, lightDir, skyColor, plane, ambientLightFactor);
+			bind(regularShader, engine, camera, lightDir, plane);
 		}
 	}
 	
-	private void bind(Shader shader, Engine engine, Camera camera, Vector3f lightDir, Vector3f skyColor, Vector4f plane, float ambientLightFactor) {
+	private void bind(Shader shader, Engine engine, Camera camera, Vector3f lightDir, Vector4f plane) {
 		this.shader = shader;
 		engine.getRenderingBackend().setBlending(false);
 		engine.getRenderingBackend().setDepth(true);
 		prepare(camera, lightDir);
 		shader.uploadVector("plane", plane);
-		shader.uploadVector("skyColor", skyColor);
-		shader.uploadFloat("ambientLightFactor", ambientLightFactor);
 		lastMaterial = null;
 		lastGeometry = null;
 	}
@@ -62,19 +59,7 @@ public class AnimatedModelRenderer {
 	
 	private Material lastMaterial;
 
-	public void render(Entity entity, Light[] lights, int lightCount, boolean normalMapped) {
-		for (int i = 0; i < SceneRenderer.MAX_LIGHTS; i++) {
-			if (i < lightCount) {
-				shader.uploadVector("lightPosition[" + i + "]", lights[i].getPosition());
-				shader.uploadVector("lightColor[" + i + "]", lights[i].getColor());
-				shader.uploadVector("attenuation[" + i + "]", lights[i].getAttenuation());
-			} else {
-				shader.uploadVector("lightPosition[" + i + "]", new Vector3f());
-				shader.uploadVector("lightColor[" + i + "]", new Vector3f());
-				shader.uploadVector("attenuation[" + i + "]", new Vector3f(1, 0, 0));
-			}
-		}
-		
+	public void render(Entity entity, boolean normalMapped) {
 		shader.uploadMatrix("modelMatrix", entity.getModelMatrix());
 		Material material = entity.getAnimatedModel().getMaterial();
 		if (lastMaterial == null || !material.equals(lastMaterial)) {
@@ -106,7 +91,6 @@ public class AnimatedModelRenderer {
 	private void prepare(Camera camera, Vector3f lightDir) {
 		shader.bind();
 		camera.uploadTo(shader);
-		shader.uploadVector("lightDirection", lightDir);
 	}
 
 	private void finish() {

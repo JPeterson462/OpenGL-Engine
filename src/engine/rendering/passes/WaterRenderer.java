@@ -72,10 +72,9 @@ public class WaterRenderer {
 		shader.uploadInt("dudvMap", 2);
 		shader.uploadInt("normalMap", 3);
 		shader.uploadInt("depthMap", 4);
-		shader.uploadInt("shadowMap", 5);
 	}
 	
-	public void render(Camera camera, Engine engine, PlaneRender sceneRenderCall, float delta, Texture shadowMap, Matrix4f shadowMapSpace, float shadowDistance, float shadowMapSize) {
+	public void render(Camera camera, Engine engine, PlaneRender sceneRenderCall, float delta) {
 		engine.getRenderingBackend().setAdditiveBlending(false);
 		moveFactor += WAVE_SPEED * delta;
 		if (moveFactor > 1) {
@@ -105,15 +104,11 @@ public class WaterRenderer {
 		shader.uploadVector("lightPosition", lightPosition);
 		viewPlane.set(engine.getSettings().nearPlane, engine.getSettings().farPlane);
 		shader.uploadVector("viewPlane", viewPlane);
-		shader.uploadMatrix("toShadowMapSpace", shadowMapSpace);
-		shader.uploadFloat("shadowDistance", shadowDistance);
-		shader.uploadFloat("shadowMapSize", shadowMapSize);
 		reflectionBuffer.getColorTexture(0).bind(0);
 		refractionBuffer.getColorTexture(0).bind(1);
 		dudvMap.bind(2);
 		normalMap.bind(3);
 		refractionBuffer.getDepthTexture().bind(4);
-		shadowMap.bind(5);
 		geometry.bind();
 		ArrayList<WaterTile> tiles = water.getTiles();
 		for (int i = 0; i < tiles.size(); i++) {

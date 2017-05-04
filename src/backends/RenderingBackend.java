@@ -29,6 +29,8 @@ public interface RenderingBackend {
 	
 	public void setAdditiveBlending(boolean enabled);
 	
+	public void setRewriteBlending(boolean enabled);
+	
 	public void setBackgroundColor(float red, float green, float blue);
 	
 	public void createDisplay(Settings settings, Keyboard keyboard, Mouse mouse, Engine engine);
