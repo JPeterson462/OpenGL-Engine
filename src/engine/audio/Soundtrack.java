@@ -9,6 +9,7 @@ import java.util.zip.ZipInputStream;
 import com.esotericsoftware.minlog.Log;
 
 import engine.Engine;
+import engine.RawAsset;
 
 public class Soundtrack {
 	
@@ -19,9 +20,10 @@ public class Soundtrack {
 	public Soundtrack(InputStream stream, Engine engine, AudioFormat format) {
 		try {
 			ZipInputStream zipFile = new ZipInputStream(stream);
+			RawAsset rawFile = new RawAsset(zipFile);
 			ZipEntry zipEntry = zipFile.getNextEntry();
 			while (zipEntry != null) {
-				tracks.add(engine.getAudioBackend().loadMusic(zipFile, format));
+				tracks.add(engine.getAudioBackend().loadMusic(rawFile, format));
 				zipFile.closeEntry();
 				zipEntry = zipFile.getNextEntry();
 			}

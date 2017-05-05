@@ -1,9 +1,8 @@
 package backends;
 
-import java.io.InputStream;
-
 import org.joml.Vector3f;
 
+import engine.Asset;
 import engine.audio.AudioFormat;
 import engine.audio.Music;
 import engine.audio.SoundEffect;
@@ -16,9 +15,9 @@ public interface AudioBackend {
 	
 	public void createContext();
 
-	public Music loadMusic(InputStream source, AudioFormat format);
+	public Music loadMusic(Asset source, AudioFormat format);
 	
-	public SoundEffect loadSoundEffect(InputStream source, AudioFormat format);
+	public SoundEffect loadSoundEffect(Asset source, AudioFormat format);
 	
 	public void setBackgroundMusic(Music music);
 	

@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 
 import com.esotericsoftware.minlog.Log;
 
+import engine.Asset;
 import engine.Engine;
 import engine.rendering.Vertex;
 
@@ -18,8 +19,8 @@ public class OBJImporter implements ModelImporter {
 	private boolean parsedFaces = false;
 
 	@Override
-	public Model loadModelImpl(String path, Engine engine, boolean computeTangents) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(engine.getResource(path)))) {
+	public Model loadModelImpl(Asset path, Engine engine, boolean computeTangents) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(path.read()))) {
 			ArrayList<OBJVertex> positions = new ArrayList<>();
 			ArrayList<Vector2f> texCoords = new ArrayList<>();
 			ArrayList<Vector3f> normals = new ArrayList<>();

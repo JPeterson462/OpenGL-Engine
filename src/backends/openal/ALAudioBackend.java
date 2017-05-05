@@ -1,6 +1,5 @@
 package backends.openal;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -20,6 +19,7 @@ import org.lwjgl.system.MemoryUtil;
 import com.esotericsoftware.minlog.Log;
 
 import backends.AudioBackend;
+import engine.Asset;
 import engine.audio.AudioDecoder;
 import engine.audio.AudioFormat;
 import engine.audio.AudioStream;
@@ -102,7 +102,7 @@ public class ALAudioBackend implements AudioBackend {
 	}
 
 	@Override
-	public Music loadMusic(InputStream stream, AudioFormat format) {
+	public Music loadMusic(Asset stream, AudioFormat format) {
 		AudioStream audio = decoders.get(format).openStream(stream);
 		int source = AL10.alGenSources();
 		int[] buffers = new int[] {
@@ -118,7 +118,7 @@ public class ALAudioBackend implements AudioBackend {
 	}
 
 	@Override
-	public SoundEffect loadSoundEffect(InputStream stream, AudioFormat format) {
+	public SoundEffect loadSoundEffect(Asset stream, AudioFormat format) {
 		SoundData data = decoders.get(format).decode(stream);
 		int source = AL10.alGenSources();
 		int buffer = AL10.alGenBuffers();

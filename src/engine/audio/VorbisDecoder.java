@@ -11,6 +11,7 @@ import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryUtil;
 
+import engine.Asset;
 import utils.IOUtils;
 
 public class VorbisDecoder implements AudioDecoder {
@@ -19,14 +20,15 @@ public class VorbisDecoder implements AudioDecoder {
 	
 	private HashSet<Long> decoderHandles = new HashSet<>();
 	
-	public SoundData decode(InputStream stream) {
-		ShortBuffer pcm = STBVorbis.stb_vorbis_decode_memory(IOUtils.readToBuffer(stream), channelsBuffer, sampleRateBuffer);
+	public SoundData decode(Asset stream) {
+		ShortBuffer pcm = STBVorbis.stb_vorbis_decode_memory(IOUtils.readToBuffer(stream.read()), channelsBuffer, sampleRateBuffer);
 		return new SoundData(pcm, channelsBuffer.get(0), sampleRateBuffer.get(0), 0);
 	}
 
 	@Override
-	public AudioStream openStream(InputStream stream) {
-		ByteBuffer vorbis = IOUtils.readToBuffer(stream);
+	public AudioStream openStream(Asset stream) {
+		InputStream io = stream.read();
+		ByteBuffer vorbis = IOUtils.readToBuffer(io);
 		IntBuffer error = BufferUtils.createIntBuffer(1);
 		long ihandle = STBVorbis.stb_vorbis_open_memory(vorbis, error, null);
 		if (ihandle == MemoryUtil.NULL) {
@@ -38,7 +40,7 @@ public class VorbisDecoder implements AudioDecoder {
 			STBVorbis.stb_vorbis_get_info(ihandle, info);
 			data = new SoundData(null, info.channels(), info.sample_rate(), STBVorbis.stb_vorbis_stream_length_in_samples(ihandle));
 		}
-		return new VorbisAudioStream(data, STBVorbis.stb_vorbis_stream_length_in_seconds(ihandle), ihandle, stream, vorbis) {
+		return new VorbisAudioStream(data, STBVorbis.stb_vorbis_stream_length_in_seconds(ihandle), ihandle, io, vorbis) {
 
 			@Override
 			public boolean readData(final int bufferSize, ShortBuffer pcm) {

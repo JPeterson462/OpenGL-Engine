@@ -75,10 +75,13 @@
 	Started deferred rendering, need to fix the final computation
 5-4-17:
 	Rolled back deferred rendering, need to take another approach on a development branch
+	Better asset paths
+	Shader import handler (.frag files)
 	
 Upcoming:
 
 	Casting shadows on skeletal animation entities
+	Skeletal animation entities casting shadows
 
 ========================================================================
 	
@@ -105,7 +108,6 @@ https://www.youtube.com/playlist?list=PLFt_AvWsXl0fEx02iXR8uhDsVGhmM9Pse
 - Soft shadows
 - Music on its own thread?
 - Fix PostProcessingRenderer (doesn't render to FBO, just straight to screen)
-- shader imports
 
 - Remove awful text renderer workaround to glBufferSubData
 - rendering to framebuffer for expensive renders like fonts?

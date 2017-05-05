@@ -1,5 +1,6 @@
 package engine.gui;
 
+import engine.Asset;
 import engine.Assets;
 import engine.Camera;
 import engine.Engine;
@@ -14,9 +15,9 @@ public class Image extends Widget {
 	
 	private Texture texture;
 	
-	private String path;
+	private Asset path;
 	
-	public Image(String name, String path) {
+	public Image(String name, Asset path) {
 		super(name);
 		this.path = path;
 	}

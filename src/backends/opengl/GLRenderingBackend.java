@@ -1,6 +1,5 @@
 package backends.opengl;
 
-import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import org.lwjgl.system.MemoryUtil;
 import com.esotericsoftware.minlog.Log;
 
 import backends.RenderingBackend;
+import engine.Asset;
 import engine.Engine;
 import engine.Settings;
 import engine.input.Key;
@@ -365,22 +365,22 @@ public class GLRenderingBackend implements RenderingBackend {
 	}
 	
 	@Override
-	public Shader createShader(InputStream fragment, InputStream vertex, VertexTemplate vertices) {
+	public Shader createShader(Asset fragment, Asset vertex, VertexTemplate vertices) {
 		return GLShaderBuilder.createShader(fragment, vertex, vertices, memory);
 	}
 
 	@Override
-	public Shader createInstancedShader(InputStream fragment, InputStream vertex, int[] attributes, String[] names) {
+	public Shader createInstancedShader(Asset fragment, Asset vertex, int[] attributes, String[] names) {
 		return GLShaderBuilder.createInstancedShader(fragment, vertex, memory, attributes, names);
 	}
 	
 	@Override
-	public Texture createTexture(InputStream stream, boolean mipmapAlways, boolean clampEdges) {
+	public Texture createTexture(Asset stream, boolean mipmapAlways, boolean clampEdges) {
 		return GLTextureBuilder.createTexture(stream, mipmapAlways, clampEdges, memory);
 	}
 
 	@Override
-	public Texture createCubemap(InputStream[] stream) {
+	public Texture createCubemap(Asset[] stream) {
 		return GLTextureBuilder.createCubemap(stream, memory);
 	}
 	

@@ -1,8 +1,8 @@
 package backends;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
+import engine.Asset;
 import engine.Engine;
 import engine.Settings;
 import engine.input.Keyboard;
@@ -45,13 +45,13 @@ public interface RenderingBackend {
 	
 	public void updateGeometry(Geometry geometry, ArrayList<Vertex> vertices, ArrayList<Integer> indexList);
 	
-	public Shader createShader(InputStream fragment, InputStream vertex, VertexTemplate vertices);
+	public Shader createShader(Asset fragment, Asset vertex, VertexTemplate vertices);
 
-	public Shader createInstancedShader(InputStream fragment, InputStream vertex, int[] attributes, String[] names);
+	public Shader createInstancedShader(Asset fragment, Asset vertex, int[] attributes, String[] names);
 	
-	public Texture createTexture(InputStream stream, boolean mipmapAlways, boolean clampEdges);
+	public Texture createTexture(Asset stream, boolean mipmapAlways, boolean clampEdges);
 	
-	public Texture createCubemap(InputStream[] stream);
+	public Texture createCubemap(Asset[] stream);
 	
 	public Framebuffer createFramebuffer(int width, int height, int colorAttachments, boolean hasDepthBuffer);
 	

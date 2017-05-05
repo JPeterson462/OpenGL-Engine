@@ -1,0 +1,33 @@
+Features:
+	Lighting
+	Shadows
+	Water Rendering
+	Scene Rendering
+	
+A GBuffer includes:
+	- Depth
+	- Diffuse
+	- Normals
+	- Material (Reflectivity, Shine Damper)	
+
+Refraction is below the water plane, reflection is above
+	
+1. Render the refraction scene to a GBuffer
+
+2. Render the reflection scene to a GBuffer
+
+3. Render the water tiles to a GBuffer
+	- Bind the refraction and reflection GBuffers
+
+4. Render the shadows and lights to a texture
+	- Bind the refraction, reflection, and water GBuffers
+	
+5. Apply post processing to the texture
+
+	while (PostProcessing)
+		texture = PostProcess(texture)
+		
+6. Render the final texture to the default framebuffer
+
+* where to add fog?
+* converting light vectors to tangent space?

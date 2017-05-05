@@ -76,6 +76,8 @@ import engine.water.WaterTile;
 import utils.Screenshot;
 import utils.StringUtils;
 
+import static test.TestUtils.*;
+
 public class TestApplication {
 
 	private static Shader shader;
@@ -148,25 +150,25 @@ public class TestApplication {
 				
 				soundtrack = Assets.newSoundtrack("AvengedSevenfold.zip", AudioFormat.VORBIS);
 				
-				font = FontImporter.loadFont("Consolas.fnt", e);
-				textRenderer = new TextRenderer(Assets.newShader("fragmentText.glsl", "vertexText.glsl", VertexTemplate.POSITION_TEXCOORD_COLOR));
+				font = FontImporter.loadFont(font("Consolas.fnt"), e);
+				textRenderer = new TextRenderer(Assets.newShader(shader("fragmentText.glsl"), shader("vertexText.glsl"), VertexTemplate.POSITION_TEXCOORD_COLOR));
 				textBuffer = new TextBuffer("Testing Renderer", new Vector2f(50, 50), new Vector2f(500, 100), new Vector4f(1, 1, 1, 1), 24, font, e, 36, TextAlign.LEFT);
 
-				particleRenderer = new ParticleRenderer(Assets.newInstancedShader("fragmentParticle.glsl", "vertexParticle.glsl", 
+				particleRenderer = new ParticleRenderer(Assets.newInstancedShader(shader("fragmentParticle.glsl"), shader("vertexParticle.glsl"), 
 						new int[] { 0, 1, 5, 6 }, new String[] { "in_Position", "modelViewMatrix", "textureAtlasOffset", "blendFactor" }), camera, e);
-				particleRenderer.addEmitter(new BasicParticleEmitter(e.getRenderingBackend().createTexture(e.getResource("textures/cosmic.png"), false, true), 
+				particleRenderer.addEmitter(new BasicParticleEmitter(e.getRenderingBackend().createTexture(texture("cosmic.png"), false, true), 
 						new Vector3f(30, 10, 30), 0.002f, 25, 0.3f, 3, 4, 0.1f, 0.4f, 0.8f, 60f, new int[] { 4, 4 }));
 
-				fern = Assets.newModel("fern.obj", false);
-				fernMaterial = Assets.newMaterial("fern.png");
+				fern = Assets.newModel(model("fern.obj"), false);
+				fernMaterial = Assets.newMaterial(texture("fern.png"));
 				fernGeometry = e.getRenderingBackend().createGeometry(fern.getVertices(), fern.getIndices(), true);
-				entity = new Entity("models/tree.obj", "textures/tree.png", e, 1, 1, 0, 0);
+				entity = new Entity(model("tree.obj"), texture("tree.png"), e, 1, 1, 0, 0);
 				entity.setScale(3);
-				shader = Assets.newShader("fragmentDefault.glsl", "vertexDefault.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL);
-				Shader normalMappedShader = Assets.newShader("fragmentNormals.glsl", "vertexNormals.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_TANGENT);
+				shader = Assets.newShader(shader("fragmentDefault.glsl"), shader("vertexDefault.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL);
+				Shader normalMappedShader = Assets.newShader(shader("fragmentNormals.glsl"), shader("vertexNormals.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_TANGENT);
 
-				TerrainTexturePack pack = Assets.newTerrainTexturePack("grass.png", "dirt.png", "pinkFlowers.png", "path.png", "blendMap.png");
-				Shader terrainShader = Assets.newShader("fragmentTerrain.glsl", "vertexTerrain.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL);
+				TerrainTexturePack pack = Assets.newTerrainTexturePack(texture("grass.png"), texture("dirt.png"), texture("pinkFlowers.png"), texture("path.png"), texture("blendMap.png"));
+				Shader terrainShader = Assets.newShader(shader("fragmentTerrain.glsl"), shader("vertexTerrain.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL);
 
 				TerrainTile[][] tiles = new TerrainTile[3][3];
 				tiles[0][0] = new TerrainTile(newGenerator(0, 0), e, pack);
@@ -185,31 +187,31 @@ public class TestApplication {
 //				tiles[1][1] = new TerrainTile(newGenerator(1, 1), e, pack);
 				terrain = new Terrain(tiles);
 
-				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader("fragmentSkybox.glsl", "vertexSkybox.glsl", VertexTemplate.POSITION), e, camera);
+				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader(shader("fragmentSkybox.glsl"), shader("vertexSkybox.glsl"), VertexTemplate.POSITION), e, camera);
 
 				Light sun = new Light(new Vector3f(100000, 100000, -100000), new Vector3f(1.3f, 1.3f, 1.3f));
 				
 				ArrayList<WaterTile> waterTiles = new ArrayList<>();
 				waterTiles.add(new WaterTile(80, WaterRenderer.WATER_HEIGHT, 80));
 				Water water = new Water(waterTiles);
-				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader("fragmentWater.glsl", "vertexWater.glsl", VertexTemplate.POSITION), e, water, Assets.newTexture("waterDUDV.png"), 
-						Assets.newTexture("waterNormal.png"), sun);
+				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader(shader("fragmentWater.glsl"), shader("vertexWater.glsl"), VertexTemplate.POSITION), e, water, Assets.newTexture(texture("waterDUDV.png")), 
+						Assets.newTexture(texture("waterNormal.png")), sun);
 				
-				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader("fragmentShadow.glsl", "vertexShadow.glsl", VertexTemplate.POSITION_TEXCOORD), e, camera);
+				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader(shader("fragmentShadow.glsl"), shader("vertexShadow.glsl"), VertexTemplate.POSITION_TEXCOORD), e, camera);
 				
 //				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
 //				i1.getPosition().set(0, 0);
 //				i1.getSize().set(640, 360);
 				
 				HashMap<Class<?>, WidgetRenderer> renderers = new HashMap<>();
-				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader("fragmentGui.glsl", "vertexGui.glsl", VertexTemplate.POSITION_TEXCOORD)));
+				renderers.put(DefaultGUIRenderer.class, new DefaultGUIRenderer(Assets.newShader(shader("fragmentGui.glsl"), shader("vertexGui.glsl"), VertexTemplate.POSITION_TEXCOORD)));
 				renderers.put(TextRenderer.class, textRenderer);
 				
 				Container container = new Container("container0");			
 				container.getPosition().set(100, 0);
 				container.getSize().set(500, 500);
 				
-				Image i0 = new Image("id0", "google_logo.png");
+				Image i0 = new Image("id0", texture("google_logo.png"));
 				i0.getPosition().set(0, 100);
 				i0.getSize().set(200, 70);
 				container.addWidget(i0);
@@ -225,11 +227,11 @@ public class TestApplication {
 				
 				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
 				
-				modelRenderer = new AnimatedModelRenderer(Assets.newShader("fragmentSkeletal.glsl", "vertexSkeletal.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
-						Assets.newShader("fragmentSkeletalNormals.glsl", "vertexSkeletalNormals.glsl", VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
+				modelRenderer = new AnimatedModelRenderer(Assets.newShader(shader("fragmentSkeletal.glsl"), shader("vertexSkeletal.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
+						Assets.newShader(shader("fragmentSkeletalNormals.glsl"), shader("vertexSkeletalNormals.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
 				
 				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
-				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), Assets.newMaterial("animatedDiffuse.png"));
+				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), Assets.newMaterial(texture("animatedDiffuse.png")));
 				animatedModel.doAnimation(animation);
 
 				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
@@ -252,8 +254,8 @@ public class TestApplication {
 				ae.setPosition(new Vector3f(45, 35, 45));
 				sceneRenderer.addEntity(ae);
 
-				Model lamp = Assets.newModel("lamp.obj", false);
-				Material lampMaterial = Assets.newMaterial("lamp.png");
+				Model lamp = Assets.newModel(model("lamp.obj"), false);
+				Material lampMaterial = Assets.newMaterial(texture("lamp.png"));
 				Geometry lampGeometry = e.getRenderingBackend().createGeometry(lamp.getVertices(), lamp.getIndices(), true);
 				Entity lamp1 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
 				lamp1.setPosition(new Vector3f(185, terrain.getHeightAt(185, -293), -293));
@@ -262,8 +264,8 @@ public class TestApplication {
 				Entity lamp3 = new Entity(lamp, lampMaterial, lampGeometry, 1, 1, 0, 0);
 				lamp3.setPosition(new Vector3f(293, terrain.getHeightAt(293, -305), -305));
 
-				Model crate = Assets.newModel("crate.obj", true);
-				Material crateMaterial = Assets.newMaterial("crate.png", "crateNormal.png");
+				Model crate = Assets.newModel(model("crate.obj"), true);
+				Material crateMaterial = Assets.newMaterial(texture("crate.png"), texture("crateNormal.png"));
 				crateMaterial.setReflectivity(0.5f);
 				crateMaterial.setShineDamper(10);
 				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices(), true);
@@ -276,8 +278,8 @@ public class TestApplication {
 				crateEntity.setScale(0.1f);
 				sceneRenderer.addEntity(crateEntity);
 
-				Model tree = Assets.newModel("tree.obj", true);
-				Material treeMaterial = Assets.newMaterial("tree.png");
+				Model tree = Assets.newModel(model("tree.obj"), true);
+				Material treeMaterial = Assets.newMaterial(texture("tree.png"));
 				Geometry treeGeometry = Assets.newGeometry(tree);
 				
 				int entities = 500;

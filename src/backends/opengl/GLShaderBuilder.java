@@ -1,21 +1,17 @@
 package backends.opengl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import com.esotericsoftware.minlog.Log;
 
+import engine.Asset;
 import engine.rendering.Shader;
 import engine.rendering.VertexTemplate;
 
 public class GLShaderBuilder {
 
-	public static Shader createShader(InputStream fragment, InputStream vertex, VertexTemplate vertices, GLMemory memory) {
+	public static Shader createShader(Asset fragment, Asset vertex, VertexTemplate vertices, GLMemory memory) {
 		int fragmentShader = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
 		int vertexShader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
 		GL20.glShaderSource(fragmentShader, readSource(fragment));
@@ -72,7 +68,7 @@ public class GLShaderBuilder {
 		return new Shader(shader, new GLUniformSetter(programId));
 	}
 
-	public static Shader createInstancedShader(InputStream fragment, InputStream vertex, GLMemory memory, int[] attributes, String[] names) {
+	public static Shader createInstancedShader(Asset fragment, Asset vertex, GLMemory memory, int[] attributes, String[] names) {
 		int fragmentShader = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
 		int vertexShader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
 		GL20.glShaderSource(fragmentShader, readSource(fragment));
@@ -98,14 +94,15 @@ public class GLShaderBuilder {
 		return new Shader(shader, new GLUniformSetter(programId));
 	}
 
-	private static StringBuilder readSource(InputStream stream) {
-		StringBuilder fileSource = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-			reader.lines().forEach(line -> fileSource.append(line).append('\n'));
-		} catch (IOException e) {
-			Log.error("Exception occurred while loading file from input stream", e);
-		}
-		return fileSource;
+	private static StringBuilder readSource(Asset stream) {
+//		StringBuilder fileSource = new StringBuilder();
+//		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream.read()))) {
+//			reader.lines().forEach(line -> fileSource.append(line).append('\n'));
+//		} catch (IOException e) {
+//			Log.error("Exception occurred while loading file from input stream", e);
+//		}
+//		return fileSource;
+		return ShaderImportHandler.readShader(stream);
 	}
 	
 }

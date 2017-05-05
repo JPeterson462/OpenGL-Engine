@@ -11,6 +11,7 @@ import org.joml.Vector4f;
 
 import com.esotericsoftware.minlog.Log;
 
+import engine.Asset;
 import engine.Engine;
 import engine.rendering.Texture;
 import engine.text.Angelcode.FontData;
@@ -20,23 +21,17 @@ public class AngelcodeFontImporter implements FontImporter {
 
 	private HashMap<String, String> properties = new HashMap<>();
 	
-	private String path;
+	private Asset path;
 	
 	@Override
-	public Font loadFontImpl(String path, Engine engine) {
-		String dirPath = path.contains("/") ? path.substring(path.lastIndexOf('/')) : "";
-		String fontPath = getFontPath(dirPath + path);
-		String fontDirPath = getFontPath(dirPath);
+	public Font loadFontImpl(Asset path, Engine engine) {
 		this.path = path;
 		ArrayList<Angelcode.Letter> letters = new ArrayList<>();
 		ArrayList<Angelcode.Page> pageList = new ArrayList<>();
 		FontData[] dataPointer = new FontData[1];
 		Info[] infoPointer = new Info[1];
-		if (engine.getResource(fontPath) == null) {
-			return null;
-		}
 		// 1. Load the file into digestable data structures
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(engine.getResource(fontPath)))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(path.read()))) {
 			reader.lines().forEach(line -> {
 				String[] parts = line.split(" +");
 				switch (parts[0].toLowerCase()) {
@@ -72,7 +67,7 @@ public class AngelcodeFontImporter implements FontImporter {
 		Page[] pages = new Page[data.pages];
 		for (int i = 0; i < pageList.size(); i++) {
 			Angelcode.Page pageData = pageList.get(i);
-			Texture texture = engine.getRenderingBackend().createTexture(engine.getResource(fontDirPath + pageData.file), true, false);
+			Texture texture = engine.getRenderingBackend().createTexture(path.getRelative(pageData.file), true, false);
 			ArrayList<Letter> pageLetters = new ArrayList<>();
 			for (int j = 0; j < letters.size(); j++) {
 				Angelcode.Letter letterData = letters.get(j);

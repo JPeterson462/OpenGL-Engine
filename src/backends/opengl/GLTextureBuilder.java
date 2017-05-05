@@ -1,6 +1,5 @@
 package backends.opengl;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
@@ -14,6 +13,7 @@ import org.lwjgl.stb.STBImage;
 
 import com.esotericsoftware.minlog.Log;
 
+import engine.Asset;
 import engine.rendering.Texture;
 import utils.IOUtils;
 
@@ -48,9 +48,9 @@ public class GLTextureBuilder {
 		return texture;
 	}
 	
-	public static Texture createTexture(InputStream stream, boolean mipmapAlways, boolean clampEdges, GLMemory memory) {
+	public static Texture createTexture(Asset stream, boolean mipmapAlways, boolean clampEdges, GLMemory memory) {
 		int[] width = new int[1], height = new int[1], channels = new int[1];
-		ByteBuffer pixels = STBImage.stbi_load_from_memory(IOUtils.readToBuffer(stream), width, height, channels, 0);
+		ByteBuffer pixels = STBImage.stbi_load_from_memory(IOUtils.readToBuffer(stream.read()), width, height, channels, 0);
 		int textureId = GL11.glGenTextures();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 		if (clampEdges) {
@@ -92,7 +92,7 @@ public class GLTextureBuilder {
 		return new Texture(texture, width[0], height[0], type);
 	}
 	
-	public static Texture createCubemap(InputStream[] stream, GLMemory memory) {
+	public static Texture createCubemap(Asset[] stream, GLMemory memory) {
 		if (stream.length != 6)
 			Log.error("Cubemaps must contain 6 textures");
 		int[] width = new int[1], height = new int[1], channels = new int[1];
@@ -100,7 +100,7 @@ public class GLTextureBuilder {
 		GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, textureId);
 		int type = 0;
 		for (int i = 0; i < 6; i++) {
-			ByteBuffer pixels = STBImage.stbi_load_from_memory(IOUtils.readToBuffer(stream[i]), width, height, channels, 0);
+			ByteBuffer pixels = STBImage.stbi_load_from_memory(IOUtils.readToBuffer(stream[i].read()), width, height, channels, 0);
 			int format = 0;
 			switch (channels[0]) {
 				case 4: 

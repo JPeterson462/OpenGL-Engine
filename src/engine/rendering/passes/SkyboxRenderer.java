@@ -1,7 +1,10 @@
 package engine.rendering.passes;
 
+import engine.Asset;
+import engine.AssetNamespace;
 import engine.Assets;
 import engine.Camera;
+import engine.ClasspathAsset;
 import engine.Engine;
 import engine.rendering.Geometry;
 import engine.rendering.Shader;
@@ -45,8 +48,8 @@ public class SkyboxRenderer {
 		shader.uploadMatrix("projectionMatrix", camera.getProjectionMatrix());
 	}
 
-	private String[] getSkyboxPaths(String prefix) {
-		String[] paths = new String[6];
+	private Asset[] getSkyboxPaths(String prefix) {
+		Asset[] paths = new Asset[6];
 		paths[0] = getSkyboxPath(prefix, "right");
 		paths[1] = getSkyboxPath(prefix, "left");
 		paths[2] = getSkyboxPath(prefix, /*"top"*/ "bottom");
@@ -56,11 +59,11 @@ public class SkyboxRenderer {
 		return paths;
 	}
 	
-	private String getSkyboxPath(String prefix, String path) {
+	private Asset getSkyboxPath(String prefix, String path) {
 		if (prefix.length() > 0) {
-			return prefix + StringUtils.capitalize(path) + ".png";
+			return new ClasspathAsset(AssetNamespace.TEXTURES, prefix + StringUtils.capitalize(path) + ".png");
 		}
-		return path + ".png";
+		return new ClasspathAsset(AssetNamespace.TEXTURES, path + ".png");
 	}
 	
 	public void update(Camera camera, float delta) {

@@ -122,7 +122,7 @@ public class SceneRenderer {
 		animatedModelRenderer.unbind(engine);
 	}
 	
-	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix, Vector3f skyColor, float ambientLightFactor) {
+	private void render(HashMap<Geometry, ArrayList<Entity>> entityMap, Shader shader, boolean normalMaps, Vector4f clipPlane, boolean sendViewMatrix, Vector3f skyColor, float ambientLightFactor, Engine engine) {
 		shader.bind();
 		if (normalMaps) {
 			shader.uploadInt("diffuseTexture", 0);
@@ -192,8 +192,8 @@ public class SceneRenderer {
 	
 	private void renderScene(Vector4f plane, boolean sendViewMatrix, Engine engine, float delta, Vector3f skyColor, float ambientLightFactor) {
 		terrainRenderer.render(camera, lights, lightCount, MAX_LIGHTS, skyColor, plane, shadowRenderer.getToShadowSpaceMatrix(), shadowRenderer.getShadowMap(), ambientLightFactor);
-		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix, skyColor, ambientLightFactor);
-		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix, skyColor, ambientLightFactor);
+		render(defaultEntityMap, defaultShader, false, plane, sendViewMatrix, skyColor, ambientLightFactor, engine);
+		render(normalMappedEntityMap, normalMappedShader, true, plane, sendViewMatrix, skyColor, ambientLightFactor, engine);
 		renderAnimated(false, defaultAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane, skyColor, ambientLightFactor);
 		renderAnimated(true, normalMappedAnimatedEntityMap, new Vector3f(0.2f, -0.3f, -0.8f), engine, plane, skyColor, ambientLightFactor);
 		skyboxRenderer.render(camera, skyColor);
@@ -231,6 +231,7 @@ public class SceneRenderer {
 				}
 				geometry.unbind();
 			}
+			// TODO animated models
 		});
 		shadowRenderer.computeShadowSpaceMatrix();
 		skyboxRenderer.update(camera, delta);

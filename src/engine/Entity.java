@@ -35,9 +35,9 @@ public class Entity {
 	
 	private int atlasColumns, atlasRows, atlasX, atlasY;
 
-	public Entity(String modelPath, String materialPath, Engine engine, int atlasColumns, int atlasRows, int atlasX, int atlasY) {
+	public Entity(Asset modelPath, Asset materialPath, Engine engine, int atlasColumns, int atlasRows, int atlasX, int atlasY) {
 		model = ModelImporter.loadModel(modelPath, engine, false);
-		material = new Material(engine.getRenderingBackend().createTexture(engine.getResource(materialPath), false, false));
+		material = new Material(engine.getRenderingBackend().createTexture(materialPath, false, false));
 		geometry = engine.getRenderingBackend().createGeometry(model.getVertices(), model.getIndices(), true);
 		this.atlasColumns = atlasColumns;
 		this.atlasRows = atlasRows;

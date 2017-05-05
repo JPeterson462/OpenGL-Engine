@@ -1,13 +1,9 @@
 package engine;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-import com.esotericsoftware.minlog.Log;
 
 import engine.audio.AudioFormat;
 import engine.audio.Music;
@@ -36,8 +32,8 @@ public class Assets {
 		Assets.engine = engine;
 	}
 	
-	public static Model newModel(String path, boolean computeTangents) {
-		return ModelImporter.loadModel("models/" + path, engine, computeTangents);
+	public static Model newModel(Asset path, boolean computeTangents) {
+		return ModelImporter.loadModel(path, engine, computeTangents);
 	}
 	
 	public static Geometry newGeometry(Model model) {
@@ -48,48 +44,32 @@ public class Assets {
 		return engine.getRenderingBackend().createGeometry(vertices, indexList, true);
 	}
 	
-	public static Texture newTexture(String path) {
-		return engine.getRenderingBackend().createTexture(engine.getResource("textures/" + path), false, false);
+	public static Texture newTexture(Asset path) {
+		return engine.getRenderingBackend().createTexture(path, false, false);
 	}
 	
-	public static Texture newTexture(InputStream stream) {
-		return engine.getRenderingBackend().createTexture(stream, false, false);
-	}
-	
-	public static Texture newCubemap(String... paths) {
-		InputStream[] streams = new InputStream[paths.length];
-		for (int i = 0; i < streams.length; i++) {
-			streams[i] = engine.getResource("textures/" + paths[i]);
-		}
-		Texture cubemap = engine.getRenderingBackend().createCubemap(streams);
-		for (int i = 0; i < streams.length; i++)
-			try {
-				streams[i].close();
-			} catch (IOException e) {
-				Log.error("Failed to close skybox texture streams", e);
-			}
+	public static Texture newCubemap(Asset... paths) {
+		Texture cubemap = engine.getRenderingBackend().createCubemap(paths);
 		return cubemap;
 	}
 	
-	public static Material newMaterial(String path) {
+	public static Material newMaterial(Asset path) {
 		return new Material(newTexture(path));
 	}
 	
-	public static Material newMaterial(String diffusePath, String normalPath) {
+	public static Material newMaterial(Asset diffusePath, Asset normalPath) {
 		return new Material(newTexture(diffusePath), newTexture(normalPath));
 	}
 	
-	public static Shader newShader(String fragmentPath, String vertexPath, VertexTemplate template) {
-		return engine.getRenderingBackend().createShader(engine.getResource("shaders/" + fragmentPath), 
-				engine.getResource("shaders/" + vertexPath), template);
+	public static Shader newShader(Asset fragmentPath, Asset vertexPath, VertexTemplate template) {
+		return engine.getRenderingBackend().createShader(fragmentPath, vertexPath, template);
 	}
 
-	public static Shader newInstancedShader(String fragmentPath, String vertexPath, int[] attributes, String[] names) {
-		return engine.getRenderingBackend().createInstancedShader(engine.getResource("shaders/" + fragmentPath), 
-				engine.getResource("shaders/" + vertexPath), attributes, names);
+	public static Shader newInstancedShader(Asset fragmentPath, Asset vertexPath, int[] attributes, String[] names) {
+		return engine.getRenderingBackend().createInstancedShader(fragmentPath, vertexPath, attributes, names);
 	}
 	
-	public static TerrainTexturePack newTerrainTexturePack(String... paths) {
+	public static TerrainTexturePack newTerrainTexturePack(Asset... paths) {
 		Texture[] textures = new Texture[paths.length];
 		for (int i = 0; i < paths.length; i++) {
 			textures[i] = newTexture(paths[i]);
@@ -133,16 +113,17 @@ public class Assets {
 		return engine.getRenderingBackend().createFramebuffer(width, height, colorAttachments, depthBuffer);
 	}
 	
-	public static SoundEffect newSoundEffect(String path) {
-		return engine.getAudioBackend().loadSoundEffect(engine.getResource("sounds/" + path), determineFormat(path));
+	public static SoundEffect newSoundEffect(Asset path) {
+		return engine.getAudioBackend().loadSoundEffect(path, determineFormat(path));
 	}
 	
-	public static Music newMusic(String path) {
-		return engine.getAudioBackend().loadMusic(engine.getResource("sounds/" + path), determineFormat(path));
+	public static Music newMusic(Asset path) {
+		return engine.getAudioBackend().loadMusic(path, determineFormat(path));
 	}
 	
-	private static AudioFormat determineFormat(String path) {
-		if (path.endsWith(".ogg") || path.endsWith(".ogx"))
+	private static AudioFormat determineFormat(Asset path) {
+		String extension = path.getExtension();
+		if (extension.equalsIgnoreCase("ogg") || extension.equalsIgnoreCase("ogx"))
 			return AudioFormat.VORBIS;
 		return null;
 	}
