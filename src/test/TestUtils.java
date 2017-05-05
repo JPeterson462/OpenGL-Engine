@@ -14,7 +14,7 @@ public class TestUtils {
 	}
 
 	public static ClasspathAsset shader(String path) {
-		return new ClasspathAsset(AssetNamespace.SHADERS, path);
+		return new ClasspathAsset(AssetNamespace.SHADERS, "forward/" + path);
 	}
 
 	public static ClasspathAsset model(String path) {

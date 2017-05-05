@@ -47,22 +47,20 @@ import engine.physics.Universe;
 import engine.rendering.Geometry;
 import engine.rendering.Light;
 import engine.rendering.Material;
+import engine.rendering.ParticleRenderer;
+import engine.rendering.Scene;
 import engine.rendering.Shader;
 import engine.rendering.VertexTemplate;
-import engine.rendering.passes.AnimatedModelRenderer;
-import engine.rendering.passes.DefaultGUIRenderer;
-import engine.rendering.passes.GUIRenderer;
-import engine.rendering.passes.ParticleRenderer;
-import engine.rendering.passes.PostProcessingRenderer;
-import engine.rendering.passes.SceneRenderer;
-import engine.rendering.passes.ShadowRenderer;
-import engine.rendering.passes.SkyboxRenderer;
-import engine.rendering.passes.TerrainRenderer;
-import engine.rendering.passes.TextRenderer;
-import engine.rendering.passes.WaterRenderer;
-import engine.rendering.passes.WidgetRenderer;
+import engine.rendering.deferred.DeferredSceneRenderer;
+import engine.rendering.forward.ForwardSceneRenderer;
+import engine.rendering.forward.ShadowRenderer;
+import engine.rendering.forward.SkyboxRenderer;
+import engine.rendering.forward.WaterRenderer;
+import engine.rendering.gui.DefaultGUIRenderer;
+import engine.rendering.gui.GUIRenderer;
+import engine.rendering.gui.TextRenderer;
+import engine.rendering.gui.WidgetRenderer;
 import engine.terrain.HeightmapTerrainGenerator;
-import engine.terrain.ProceduralTerrainGenerator;
 import engine.terrain.Terrain;
 import engine.terrain.TerrainGenerator;
 import engine.terrain.TerrainTile;
@@ -80,11 +78,9 @@ import static test.TestUtils.*;
 
 public class TestApplication {
 
-	private static Shader shader;
-
 	private static Entity entity;
 
-	private static SceneRenderer sceneRenderer;
+	private static Scene scene;
 
 	private static GUIRenderer guiRenderer;
 
@@ -117,8 +113,6 @@ public class TestApplication {
 	
 	private static long seed = 0;//System.currentTimeMillis();
 	
-	private static AnimatedModelRenderer modelRenderer;
-	
 	private static FirstPersonCamera camera;
 	
 	private static AnimatedModel animatedModel;
@@ -145,6 +139,8 @@ public class TestApplication {
 			try {
 				heightmap = new RawImage(engine.getResource("textures/heightmap.png"));
 //				heightmap = new RawImage(engine.getResource("textures/heightmap1.jpg"));
+				
+				scene = new Scene();
 
 				Assets.attachTo(e);
 				
@@ -164,12 +160,9 @@ public class TestApplication {
 				fernGeometry = e.getRenderingBackend().createGeometry(fern.getVertices(), fern.getIndices(), true);
 				entity = new Entity(model("tree.obj"), texture("tree.png"), e, 1, 1, 0, 0);
 				entity.setScale(3);
-				shader = Assets.newShader(shader("fragmentDefault.glsl"), shader("vertexDefault.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL);
-				Shader normalMappedShader = Assets.newShader(shader("fragmentNormals.glsl"), shader("vertexNormals.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_TANGENT);
-
+			
 				TerrainTexturePack pack = Assets.newTerrainTexturePack(texture("grass.png"), texture("dirt.png"), texture("pinkFlowers.png"), texture("path.png"), texture("blendMap.png"));
-				Shader terrainShader = Assets.newShader(shader("fragmentTerrain.glsl"), shader("vertexTerrain.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL);
-
+			
 				TerrainTile[][] tiles = new TerrainTile[3][3];
 				tiles[0][0] = new TerrainTile(newGenerator(0, 0), e, pack);
 				tiles[1][0] = new TerrainTile(newGenerator(1, 0), e, pack);
@@ -180,24 +173,15 @@ public class TestApplication {
 				tiles[0][2] = new TerrainTile(newGenerator(0, 2), e, pack);
 				tiles[1][2] = new TerrainTile(newGenerator(1, 2), e, pack);
 				tiles[2][2] = new TerrainTile(newGenerator(2, 2), e, pack);
-//				TerrainTile[][] tiles = new TerrainTile[1][1];
-//				tiles[0][0] = new TerrainTile(newGenerator(0, 0), e, pack);
-//				tiles[0][1] = new TerrainTile(newGenerator(0, 1), e, pack);
-//				tiles[1][0] = new TerrainTile(newGenerator(1, 0), e, pack);
-//				tiles[1][1] = new TerrainTile(newGenerator(1, 1), e, pack);
 				terrain = new Terrain(tiles);
-
-				SkyboxRenderer skybox = new SkyboxRenderer(Assets.newShader(shader("fragmentSkybox.glsl"), shader("vertexSkybox.glsl"), VertexTemplate.POSITION), e, camera);
+				scene.setTerrain(terrain);
 
 				Light sun = new Light(new Vector3f(100000, 100000, -100000), new Vector3f(1.3f, 1.3f, 1.3f));
 				
 				ArrayList<WaterTile> waterTiles = new ArrayList<>();
 				waterTiles.add(new WaterTile(80, WaterRenderer.WATER_HEIGHT, 80));
 				Water water = new Water(waterTiles);
-				WaterRenderer waterRenderer = new WaterRenderer(Assets.newShader(shader("fragmentWater.glsl"), shader("vertexWater.glsl"), VertexTemplate.POSITION), e, water, Assets.newTexture(texture("waterDUDV.png")), 
-						Assets.newTexture(texture("waterNormal.png")), sun);
-				
-				ShadowRenderer shadowRenderer = new ShadowRenderer(Assets.newShader(shader("fragmentShadow.glsl"), shader("vertexShadow.glsl"), VertexTemplate.POSITION_TEXCOORD), e, camera);
+				scene.setWater(water);
 				
 //				Image i1 = new Image("id1", shadowRenderer.getShadowMap());
 //				i1.getPosition().set(0, 0);
@@ -225,34 +209,20 @@ public class TestApplication {
 				GUI gui = new GUI(container);
 				guiRenderer = new GUIRenderer(gui, renderers, 1280, 720);
 				
-				PostProcessingRenderer postProcessing = new PostProcessingRenderer();
-				
-				modelRenderer = new AnimatedModelRenderer(Assets.newShader(shader("fragmentSkeletal.glsl"), shader("vertexSkeletal.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT),
-						Assets.newShader(shader("fragmentSkeletalNormals.glsl"), shader("vertexSkeletalNormals.glsl"), VertexTemplate.POSITION_TEXCOORD_NORMAL_JOINTID_WEIGHT));
-				
 				Animation animation = AnimationLoader.loadAnimation(engine.getResource("models/model.dae"));
 				animatedModel = AnimatedModelLoader.loadEntity(engine.getResource("models/model.dae"), Assets.newMaterial(texture("animatedDiffuse.png")));
 				animatedModel.doAnimation(animation);
 
-				sceneRenderer = new SceneRenderer(shader, normalMappedShader, camera, new TerrainRenderer(terrainShader, terrain), 
-						skybox, waterRenderer, shadowRenderer, postProcessing, modelRenderer);
-				sceneRenderer.addLight(sun);
-				sceneRenderer.addLight(new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-				sceneRenderer.addLight(new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-				sceneRenderer.addLight(new Light(new Vector3f(45, 40, 47), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
-//				sceneRenderer.addEntity(entity);
-				
-//				Animation animation = AnimationImporter.loadAnimation("model.dae", e);
-//				AnimatedModel animatedModel = AnimatedModelImporter.loadAnimatedModel("model.dae", e, Assets.newTexture("animatedDiffuse.png"));
-//				animatedModel.doAnimation(animation);
-//				Entity entity = new Entity(animatedModel);
-//				entity.setPosition(new Vector3f(30, 30, 30));
-//				entity.setScale(10);
-//				sceneRenderer.addEntity(entity);
+				Light[] lights = {
+						sun,
+						new Light(new Vector3f(185, 10, -293), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)),
+						new Light(new Vector3f(25, 30, 25), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)),
+						new Light(new Vector3f(45, 40, 47), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f))
+				};
 				
 				Entity ae = new Entity(animatedModel);
 				ae.setPosition(new Vector3f(45, 35, 45));
-				sceneRenderer.addEntity(ae);
+				scene.addEntity(ae);
 
 				Model lamp = Assets.newModel(model("lamp.obj"), false);
 				Material lampMaterial = Assets.newMaterial(texture("lamp.png"));
@@ -270,13 +240,13 @@ public class TestApplication {
 				crateMaterial.setShineDamper(10);
 				Geometry crateGeometry = e.getRenderingBackend().createGeometry(crate.getVertices(), crate.getIndices(), true);
 
-				sceneRenderer.addEntity(lamp1);
-				sceneRenderer.addEntity(lamp2);
-				sceneRenderer.addEntity(lamp3);
+				scene.addEntity(lamp1);
+				scene.addEntity(lamp2);
+				scene.addEntity(lamp3);
 				Entity crateEntity = new Entity(crate, crateMaterial, crateGeometry, 1, 1, 0, 0);
 				crateEntity.setPosition(new Vector3f(10, 30, 10));
 				crateEntity.setScale(0.1f);
-				sceneRenderer.addEntity(crateEntity);
+				scene.addEntity(crateEntity);
 
 				Model tree = Assets.newModel(model("tree.obj"), true);
 				Material treeMaterial = Assets.newMaterial(texture("tree.png"));
@@ -293,12 +263,12 @@ public class TestApplication {
 					entity.setScale(0.6f);
 					entity.setTransparency(true);
 					entity.getMaterial().setReflectivity(Material.NO_REFLECTIVITY);
-					sceneRenderer.addEntity(entity);
+					scene.addEntity(entity);
 					entity = new Entity(tree, treeMaterial, treeGeometry, 1, 1, 0, 0);
 					entity.setPosition(new Vector3f(nextCoordinate(random), 0, nextCoordinate(random)));
 					entity.getPosition().y = terrain.getHeightAt(entity.getPosition().x, entity.getPosition().z);
 					entity.setScale(15);
-					sceneRenderer.addEntity(entity);
+					scene.addEntity(entity);
 				}
 
 				e.getKeyboard().addListener(new KeyboardListener() {
@@ -337,6 +307,10 @@ public class TestApplication {
 				controller = new FirstPersonCameraController(camera, e.getKeyboard(), e.getMouse(), body, e.getSettings().mouseSensitivity, 5);
 				controller.setSpeed(50);
 				
+				ForwardSceneRenderer sceneRenderer = new ForwardSceneRenderer(camera, scene, e, lights);
+//				DeferredSceneRenderer sceneRenderer = new DeferredSceneRenderer(camera, scene, e, new Vector3f(1, 1, 1));
+				scene.setRendering(sceneRenderer);
+				
 //				music = e.getAudioBackend().loadMusic(e.getResource("sounds/01_Critical_Acclaim.ogx.ogg"), AudioFormat.VORBIS);
 //				e.getAudioBackend().setBackgroundMusic(music);
 //				e.getAudioBackend().setGain(0.5f);
@@ -358,7 +332,8 @@ public class TestApplication {
 //			soundtrack.update(e);
 			//			universe.update(delta);
 			controller.update(delta, terrain);
-			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, e);
+//			sceneRenderer.render(delta, engine.getMouse(), engine.getSettings().width, engine.getSettings().height, e);
+			scene.renderScene(delta);
 			
 			textRenderer.bind(camera2d, e);
 //			textRenderer.render(l0.getBuffer(), e);

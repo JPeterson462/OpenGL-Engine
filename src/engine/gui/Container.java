@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import engine.Camera;
 import engine.Engine;
-import engine.rendering.passes.WidgetRenderer;
+import engine.rendering.gui.WidgetRenderer;
 import utils.Visitor;
 
 public class Container extends Widget {

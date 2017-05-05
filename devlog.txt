@@ -77,6 +77,8 @@
 	Rolled back deferred rendering, need to take another approach on a development branch
 	Better asset paths
 	Shader import handler (.frag files)
+	Split deferred and forward rendering (deferred rendering is still WIP)
+	Improved terrain shadows (although they still flicker at the edges)
 	
 Upcoming:
 

@@ -31,3 +31,9 @@ Refraction is below the water plane, reflection is above
 
 * where to add fog?
 * converting light vectors to tangent space?
+* skybox rendering last
+- fix skybox texture
+
+TODO:
+*	SceneRenderer
+	

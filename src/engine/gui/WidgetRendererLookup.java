@@ -1,6 +1,6 @@
 package engine.gui;
 
-import engine.rendering.passes.WidgetRenderer;
+import engine.rendering.gui.WidgetRenderer;
 
 @FunctionalInterface
 public interface WidgetRendererLookup {

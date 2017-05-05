@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 
 import engine.Camera;
 import engine.Engine;
-import engine.rendering.passes.WidgetRenderer;
+import engine.rendering.gui.WidgetRenderer;
 
 public abstract class Widget {
 	

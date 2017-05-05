@@ -6,8 +6,8 @@ import engine.Camera;
 import engine.Engine;
 import engine.rendering.Geometry;
 import engine.rendering.Texture;
-import engine.rendering.passes.DefaultGUIRenderer;
-import engine.rendering.passes.WidgetRenderer;
+import engine.rendering.gui.DefaultGUIRenderer;
+import engine.rendering.gui.WidgetRenderer;
 
 public class Image extends Widget {
 
