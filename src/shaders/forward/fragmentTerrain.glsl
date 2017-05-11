@@ -31,19 +31,30 @@ in vec4 pass_ShadowCoords;
 
 out vec4 out_Color;
 
+#define SAMPLES 8
+const float angle = 0;
+const vec2 offsets[SAMPLES] = vec2[SAMPLES](
+	vec2(sin(angle + 0 * 180 / SAMPLES), cos(angle + 0 * 180 / SAMPLES)),
+	vec2(sin(angle + 1 * 180 / SAMPLES), cos(angle + 1 * 180 / SAMPLES)),
+	vec2(sin(angle + 2 * 180 / SAMPLES), cos(angle + 2 * 180 / SAMPLES)),
+	vec2(sin(angle + 3 * 180 / SAMPLES), cos(angle + 3 * 180 / SAMPLES)),
+	vec2(sin(angle + 4 * 180 / SAMPLES), cos(angle + 4 * 180 / SAMPLES)),
+	vec2(sin(angle + 5 * 180 / SAMPLES), cos(angle + 5 * 180 / SAMPLES)),
+	vec2(sin(angle + 6 * 180 / SAMPLES), cos(angle + 6 * 180 / SAMPLES)),
+	vec2(sin(angle + 7 * 180 / SAMPLES), cos(angle + 7 * 180 / SAMPLES))
+);
+
 float rand(vec2 co){
     return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-#define SAMPLES 8
 float shadow(vec3 coords) {
 	float filterRadius = 1 / shadowMapSize;
 	float passed = 0;
-	float angle = rand(coords.xy) * 360;
+	float normalized = rand(coords.xy);
 	for (int i = 0; i < SAMPLES; i++) {
-		vec2 offset = vec2(sin(angle + i * 180 / SAMPLES), cos(angle + i * 180 / SAMPLES)) * filterRadius;
-		passed += texture2D(shadowMap, coords.xy + offset).r;
-		passed += texture2D(shadowMap, coords.xy - offset).r;
+		passed += texture2D(shadowMap, coords.xy + offsets[i] * filterRadius * normalized).r;
+		passed += texture2D(shadowMap, coords.xy - offsets[i] * filterRadius * normalized).r;
 	}
 	return passed * (0.5 / SAMPLES);
 }
